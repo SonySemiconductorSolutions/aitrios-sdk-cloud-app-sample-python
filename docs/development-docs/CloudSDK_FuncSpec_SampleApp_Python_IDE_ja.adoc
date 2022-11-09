@@ -1,4 +1,4 @@
-= Cloud SDK サンプルアプリケーション Python版 IDE 機能仕様書
+= pass:[<br/>]Cloud SDK サンプルアプリケーション Python版 IDE 機能仕様書
 :toc:
 :toclevels: 1
 :toc-title: Table of Contents（目次）
