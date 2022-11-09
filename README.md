@@ -18,11 +18,11 @@
 なし
 
 ## スタートガイド
-[SDK スタートガイド]( https://developer.aitrios.sony-semicon.com/development-guides/get-started/)を参照してください。
+[SDK スタートガイド]( https://developer.aitrios.sony-semicon.com/development-guides/get-started/setup-dev/)を参照してください。
 
 ## チュートリアル
 チュートリアルを利用してConsole Access Library Python版の利用方法やアプリケーションの実装例を体験することができます。
-詳細は[Cloud SDK サンプルアプリケーション Python版 チュートリアル](https://developer.aitrios.sony-semicon.com/development-guides/tutorials/cloud-sdk/CloudSDK_Tutorial_SampleApp_Python_ja.adoc)を参照してください。
+詳細は[Cloud SDK サンプルアプリケーション Python版 チュートリアル](https://developer.aitrios.sony-semicon.com/development-guides/tutorials/cloud-sdk/)を参照してください。
 
 ## ドキュメント
 ### 機能仕様書
