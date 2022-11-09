@@ -1,0 +1,224 @@
+= Cloud SDK サンプルアプリケーション Python版 機能仕様書
+:toc:
+:toclevels: 1
+:toc-title: Table of Contents（目次）
+
+== 更新履歴
+
+|===
+|Date |What/Why 
+
+|2022/11/10
+|初版作成
+
+|===
+
+== はじめに
+
+* 本書は、Python版Cloud SDKの利用方法や活用方法を開発者に提供するサンプルアプリケーションについての機能仕様である。
+** 機能開発言語には、Pythonを使用する。
+** アプリケーションフレームワークはFlaskを使用する。
+
+== 用語・略語
+|===
+|Terms/Abbreviations |Meaning 
+
+|Cloud SDK
+|Consoleへのアクセス方法を提供するSDK
+
+|Console
+|エッジからクラウドを含めたソリューションを効率的に導入するための各種機能（デプロイメント機能、リトレーニング機能、デバイスマネジメント機能など）を提供するクラウドサービス
+
+|推論結果
+|Vision and Sensing Applicationからの出力のうち、AI処理されたメタデータ
+
+|画像
+|Vision and Sensing Applicationからの出力のうち、エッジAIデバイスがとらえているイメージデータ
+
+|===
+
+== 参照資料
+* サンプルアプリケーションで利用するPython版Cloud SDK
+** https://github.com/SonySemiconductorSolutions/aitrios-sdk-console-access-lib-python
+
+
+== 想定ユースケース
+* Python版Cloud SDKの利用方法や活用方法を提供できる。
+** ユーザーはリポジトリ内のアプリを起動することで、Cloud SDKを利用したアプリの動作を確認できる。
+** ユーザーはソースコードを確認することで、Cloud SDKの利用方法を確認できる。
+
+== 機能概要、アルゴリズム
+[NOTE]
+=== Functional Overview
+* 最新画像と最新の推論結果を画面上で確認できる。
+** ベースAIモデルはObject Detectionのみ対応する。
+* DeviceIDを選択することで、Start/Stopボタンが表示される。
+* STARTボタンを押下することで、最新画像/最新推論結果を取得し画面に表示する。
+* STOPボタンを押下することで、最新画像/最新推論結果の取得を停止する。
+
+
+=== Algorithm
+. 画面を起動する。
+.. getDeviceDataが呼び出される。
+.. 返却されたデータをDeviceID選択欄に表示する。
+.  DeviceIDを入力し、STARTボタンを押下する。
+.. getCommandParameterFileが呼び出され、設定値が以下の通りであることをチェックする。（Errorの場合はメッセージ表示する。）
+** Mode=1(Image&Inference Result)
+** UploadMethodIR="Mqtt"
+.. startUploadが呼び出され、推論結果と画像のアップロードが開始される。
+.. getImageAndInferenceが定期呼び出しされ、推論結果と画像を取得する。
+.. 取得したデータは画面に表示される。
+. STOPボタンを押下する。
+.. stopUploadが呼び出される。
+
+=== Under what condition
+* Consoleへのアクセスができること。
+* Pythonの開発環境が構築されていること。
+** Codespaces環境も利用可能。
+** Pythonのversionは3.10
+* デバイスがConsoleに接続されており、Consoleからの操作を受けつける状態である。
+
+=== API
+* GET
+** {base_url}/getDeviceData
+** {base_url}/getCommandParameterFile/device_id
+** {base_url}/getImageAndInference/device_id/sub_directory_name
+* POST
+** {base_url}/startUpload/device_id
+** {base_url}/stopUpload/device_id
+
+=== Others Exclusive conditions / specifications
+* なし
+
+== 操作性仕様、画面仕様
+=== 画面仕様
+image::./ScreenSpec_SampleApp.png[width="700"]
+
+=== 操作性仕様
+==== サンプルアプリケーション起動までの操作
+==== Codespaces利用時
+. 開発者は任意のブラウザからサンプルアプリケーションのリポジトリを開きCodespacesを起動する。
+. クラウドでリポジトリ内に存在する設定ファイルを参考にコンテナを構築する。
+. 構築されたコンテナをブラウザ上またはVS Codeから利用する。
+. サンプルアプリケーションを起動する。
+
+==== Codespacesを利用しない場合
+. 開発者は任意のブラウザからサンプルアプリケーションのリポジトリを開き、リポジトリをCloneする。
+. Cloneしたサンプルアプリケーションに必要なパッケージをインストールする。
+. サンプルアプリケーションを起動する。
+
+==== サンプルアプリケーション起動後の操作
+. DeviceIDを選択する。
+. *[START]* ボタンを押下することで、最新の画像/推論結果の取得を開始し、画面上に表示される。
+. *[STOP]* ボタンを押下することで、最新の画像/推論結果の取得が停止する。
+
+== 各BlockでのAPIパラメータ
+=== GET
+
+* {base_url}/getDeviceData
+**  DeviceIDのリストを取得し返却する。
+|===
+|Query Parameter’s name|Meaning|Range of parameter
+
+|===
+|===
+|Return value|Meaning
+
+|device_data
+|DeviceIDが格納されたオブジェクト
+|===
+
+* {base_url}/getCommandParameterFile/device_id
+** Consoleに登録されたCommand Parameter Fileの一覧取得し、設定値を返却する。
+|===
+|Query Parameter’s name|Meaning|Range of parameter
+
+|device_id
+|画像と推論結果をUploadしているDeviceID
+|指定なし
+
+|===
+|===
+|Return value|Meaning
+
+|mode
+|Consoleに登録されているModeの設定値
+
+|upload_methodIR
+|Consoleに登録されているUploadMethodIRの設定値
+|===
+
+* {base_url}/getImageAndInference/device_id/sub_directory_name
+** 指定したデバイスの推論結果と画像を取得し返却する。
+|===
+|Query Parameter’s name|Meaning|Range of parameter
+
+|device_id
+|画像と推論結果をUploadしているDeviceID
+|指定なし
+
+|sub_directory_name
+|画像が格納されるパス
+|指定なし
+
+|===
+|===
+|Return value|Meaning
+
+|image_and_inference
+|画像パスと推論結果が格納されたオブジェクト
+|===
+
+=== POST
+* {base_url}/startUpload/device_id
+** 指定したDeviceIDに対して推論結果と画像のUpload開始を要求する。
+|===
+|Body Parameter’s name|Meaning|Range of parameter
+
+|device_id
+|画像と推論結果をUploadさせるDeviceID
+|指定なし
+
+|===
+|===
+|Return value|Meaning
+
+|result
+|SUCCESSかERRORの文字列
+
+|output_sub_directory
+|Input Image格納パス
+
+|===
+
+* {base_url}/stopUpload/device_id
+** 指定したDeviceIDに対して推論結果と画像のUpload停止を要求する。
+|===
+|Body Parameter’s name|Meaning|Range of parameter
+
+|device_id
+|画像と推論結果のUploadを停止させるDeviceID
+|指定なし
+
+|===
+|===
+|Return value|Meaning
+
+|result
+|SUCCESSかERRORの文字列
+|===
+
+== 目標性能
+* 無し
+
+== 制限事項
+* Console UIから、Command Parameter Fileを以下の設定にする。
+** Mode=1(Image&Inference Result)
+** UploadMethodIR="Mqtt"
+* ベースAIモデルは、Object Detectionがデプロイされている。
+
+== その他特記事項
+* デバイスからクラウドへの画像アップロード時に、最大数分程度の遅延が発生することがある。
+
+== 未決定事項
+* 無し
