@@ -1,0 +1,52 @@
+<!-- 
+Copyright 2022 Sony Semiconductor Solutions Corp. All rights reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<!doctype html>
+<html>
+  <div class="container">
+    <Head>
+      <title>sampleApp</title>
+        <link rel="stylesheet" href="../static/css/reset.css"/>
+        <link rel="stylesheet" href="../static/css/Home.module.css"/>
+        <script src="../static/js/sample.js"></script>
+    </Head>
+    <body onload="getDeviceData()">
+      <main class="main">
+        <div class="grid">
+          <div class="paramsArea">
+						<h2 id="param-lbl" class="title">Parameter</h2>
+            <div class="param">
+              <label id="device-id-lbl"><b>DeviceID</b></label>
+              <select id="device-id-list" name="deviceId" class="select" onchange="handleOnChangeDeviceId()">
+                <option value="" selected hidden> </option>
+              </select>
+            </div>
+						<div class="buttonArea hidden">
+							<button id="start-btn" class="startButton button" onclick="handleOnClickStartBtn()">START</button>
+							<button id="stop-btn" disabled=true class="disableButton" onclick="handleOnClickStopBtn()">STOP</button>
+            </div>
+          </div>
+          <div class="paramsArea">
+            <h2 id="img-inference-lbl" class="title">Image/Inference</h2>
+						<div class="imgArea">
+							<canvas id="canvas" class="canvas"></canvas>
+						</div>
+          </div>
+        </div>
+      </main>
+    </body>
+  </div>
+</html>

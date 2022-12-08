@@ -1,0 +1,101 @@
+= Cloud SDK pass:[<br/>] サンプルアプリケーション pass:[<br/>] Python版 IDE pass:[<br/>] 機能仕様書 pass:[<br/>]
+:title-page-background-image: image:../../../images/Trademark.png[fit=none,pdfwidth=50%,position=bottom center]
+:sectnums:
+:sectnumlevels: 4
+:chapter-label:
+:author: Copyright 2022 Sony Semiconductor Solutions Corporation
+:revdate: 2022 - xx - xx
+:revnumber: 0.0.x
+:toc:
+:toc-title: 目次
+:toclevels: 4
+:chapter-label:
+:document-title-header:
+:lang: ja
+
+== 更新履歴
+
+|===
+|Date |What/Why
+
+|2022/11/16
+|初版作成
+
+|===
+
+== はじめに
+* 本書は、Codespacesにて提供するPython向け開発環境の機能仕様書である。
+
+== 用語・略語
+|===
+|Terms/Abbreviations |Meaning 
+
+|Console Access Library
+|Console for AITRIOSへのアクセス方法を提供するSDK
+
+|Codespaces
+|GitHubが提供するクラウドホスティングかつコンテナ化されたVS Code環境
+
+|===
+
+== 参照資料
+* Codespacesのドキュメント（外部リンク）
+** https://docs.github.com/ja/codespaces
+
+== 想定ユースケース
+* Python向けのCodespaces開発環境を提供できる。
+** ユーザーはリポジトリからCodespacesを起動するだけで、SDK提供のライブラリや開発を補助するツールが準備されたPython開発環境が利用できる。
+
+== 機能概要、アルゴリズム
+=== Functional Overview
+* リポジトリからCodespacesを起動するだけで、Python開発環境を利用することができる。
+** エディターとしてブラウザ上でVS CodeのUIが動く。
+
+* アプリケーション開発に必要となるSDK提供ライブラリが利用できる環境を提供する。
+** GitHubのリポジトリからサブモジュールとして環境に追加されている。
+
+* 開発補助ツールが利用できる環境を提供する。
+** 入力補完やデバッグ補助といった開発作業を促進する拡張機能が環境に追加されている。
+
+=== Algorithm
+. 指定されたPythonベースイメージを利用してコンテナ環境構築を行う。
+. VS CodeのMarketplaceにアクセスして拡張機能をインストールする。 
+** Python +
+Python開発環境用の機能を利用できる。
+** Pylance +
+Python環境にて入力補完機能を利用できる。
+** Jupyter 
+** Jupyter Keymap +
+Python開発にてデバッグ補助として VS Code上でJupyter Notebookを利用できる。
+
+. シェルスクリプトを実行し、提供ライブラリをサブモジュールとして環境に追加する。
+** Console Access Library +
+Console for AITRIOSへ接続できる。
+
+=== Under what condition
+* Codespacesの利用権限を取得していること。 +
+* Console Access Libraryのプライベートリポジトリアクセス権限を取得していること。
+
+=== API
+* 無し
+
+=== Others Exclusive conditions / specifications
+* 無し
+
+== 操作性仕様、画面仕様
+=== How to start 
+* Codespacesでの環境構築手順 + 
+ユーザーは本開発環境（リポジトリ）をForkし、複製されたリポジトリ上でCodespacesを起動する。
+起動操作後、環境構築が行われている間Codespaces側が提供する準備画面が表示される。
+
+== 各BlockでのAPIパラメータ
+* 無し
+
+== 目標性能
+* 無し
+
+== 制限事項
+* 無し
+
+== 未決定事項
+* 無し

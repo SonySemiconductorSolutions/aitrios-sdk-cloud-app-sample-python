@@ -1,0 +1,56 @@
+{
+	"name": "Python 3",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "app",
+	"workspaceFolder": "/workspace",
+
+	// Set *default* container specific settings.json values on container create.
+	"settings": { 
+		"terminal.integrated.profiles.linux": {
+			"bash": {
+				"path": "/bin/bash"
+			}
+		},
+		"terminal.integrated.defaultProfile.linux": "bash",
+		"python.pythonPath": "/usr/local/bin/python",
+		"python.languageServer": "Pylance",
+		"python.linting.enabled": true,
+		"python.linting.pylintEnabled": true,
+		"python.formatting.autopep8Path": "/usr/local/py-utils/bin/autopep8",
+		"python.formatting.blackPath": "/usr/local/py-utils/bin/black",
+		"python.formatting.yapfPath": "/usr/local/py-utils/bin/yapf",
+		"python.linting.banditPath": "/usr/local/py-utils/bin/bandit",
+		"python.linting.flake8Path": "/usr/local/py-utils/bin/flake8",
+		"python.linting.mypyPath": "/usr/local/py-utils/bin/mypy",
+		"python.linting.pycodestylePath": "/usr/local/py-utils/bin/pycodestyle",
+		"python.linting.pydocstylePath": "/usr/local/py-utils/bin/pydocstyle",
+		"python.linting.pylintPath": "/usr/local/py-utils/bin/pylint"
+	},
+
+	// Add the IDs of extensions you want installed when the container is created.
+	"extensions": [
+		"ms-python.python",
+		"ms-python.vscode-pylance",
+		"ms-toolsai.jupyter",
+		"ms-toolsai.jupyter-keymap"
+	],
+
+	// Use 'initializeCommand' to run commands before the container is created.
+	"initializeCommand": [".devcontainer/initializedCommand"],
+
+	// Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+	"remoteUser": "vscode",
+
+	// for git submodules: https://docs.github.com/ja/codespaces/managing-your-codespaces/managing-repository-access-for-your-codespaces
+	"customizations": {
+		"codespaces": {
+			"repositories": {
+				"SonySemiconductorSolutions/aitrios-sdk-console-access-lib-python": {
+					"permissions": {
+						"contents": "read"
+					}
+				}
+			}
+		}
+	}
+}
