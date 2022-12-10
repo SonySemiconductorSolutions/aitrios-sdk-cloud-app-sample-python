@@ -18,7 +18,7 @@
 |===
 |Date |What/Why 
 
-|2022/11/16
+|2022/12/12
 |初版作成
 
 |===
@@ -37,7 +37,7 @@
 |Consoleへのアクセス方法を提供するSDK
 
 |Console
-|エッジからクラウドを含めたソリューションを効率的に導入するための各種機能（デプロイメント機能、リトレーニング機能、デバイスマネジメント機能など）を提供するクラウドサービス
+|エッジからクラウドを含めたソリューションを効率的に導入するための各種機能（デプロイメント機能、リトレーニング機能、エッジAIデバイスマネジメント機能など）を提供するクラウドサービス
 
 |推論結果
 |Vision and Sensing Applicationからの出力のうち、AI処理されたメタデータ
@@ -86,7 +86,7 @@
 * Pythonの開発環境が構築されていること。
 ** Codespaces環境も利用可能。
 ** Pythonのversionは3.10
-* デバイスがConsoleに接続されており、Consoleからの操作を受けつける状態である。
+* エッジAIデバイスがConsoleに接続されており、Consoleからの操作を受けつける状態である。
 
 === API
 * GET
@@ -159,7 +159,7 @@ image::./ScreenSpec_SampleApp.png[width="700"]
 |===
 
 * {base_url}/getImageAndInference/device_id/sub_directory_name
-** 指定したデバイスの推論結果と画像を取得し返却する。
+** 指定したエッジAIデバイスの推論結果と画像を取得し返却する。
 |===
 |Query Parameter’s name|Meaning|Range of parameter
 
@@ -226,9 +226,12 @@ image::./ScreenSpec_SampleApp.png[width="700"]
 ** Mode=1(Image&Inference Result)
 ** UploadMethodIR="Mqtt"
 * ベースAIモデルは、Object Detectionがデプロイされている。
+* 実行時にAIモデルやアプリケーションがデプロイされていないエッジAIデバイスを選択した場合、正常に動作しない。
 
 == その他特記事項
-* デバイスからクラウドへの画像アップロード時に、最大数分程度の遅延が発生することがある。
+* エッジAIデバイスからクラウドへの画像アップロード時に、最大数分程度の遅延が発生することがある。
+* Command Parameter Fileの設定APIが作成され次第、Cloud SDK経由で設定できるようになる。
+* アクセストークンの取得は、Cloud SDKの機能を使用して行う。
 
 == 未決定事項
 * 無し
