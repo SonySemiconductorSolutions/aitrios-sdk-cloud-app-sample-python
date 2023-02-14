@@ -18,7 +18,7 @@ import os
 from setuptools import find_packages, setup
 
 PACKAGE_NAME = "flask_sample_app"
-PACKAGE_VERSION = "0.1.0"
+PACKAGE_VERSION = "0.2.0"
 PACKAGE_DESCRIPTION = "flask_sample_app"
 AUTHOR_NAME = "Sony Semiconductor Solutions Corporation"
 AUTHOR_EMAIL = ""

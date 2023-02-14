@@ -1,16 +1,15 @@
 = Cloud SDK pass:[<br/>] サンプルアプリケーション pass:[<br/>] Python版 pass:[<br/>] 機能仕様書 pass:[<br/>]
-:title-page-background-image: image:../../../images/Trademark.png[fit=none,pdfwidth=50%,position=bottom center]
 :sectnums:
-:sectnumlevels: 4
-:chapter-label:
-:author: Copyright 2022 Sony Semiconductor Solutions Corporation
-:revdate: 2022 - xx - xx
-:revnumber: 0.0.x
+:sectnumlevels: 1
+:author: Copyright 2023 Sony Semiconductor Solutions Corporation
+:version-label: Version 
+:revnumber: x.x.x
+:revdate: YYYY - MM - DD
+:trademark-desc: AITRIOS™、およびそのロゴは、ソニーグループ株式会社またはその関連会社の登録商標または商標です。
 :toc:
 :toc-title: 目次
-:toclevels: 4
+:toclevels: 1
 :chapter-label:
-:document-title-header:
 :lang: ja
 
 == 更新履歴
@@ -20,6 +19,11 @@
 
 |2022/12/12
 |初版作成
+
+|2023/1/30
+|表現統一 + 
+記法修正 + 
+PDFビルド環境更新
 
 |===
 
@@ -72,7 +76,7 @@
 .. getDeviceDataが呼び出される。
 .. 返却されたデータをDeviceID選択欄に表示する。
 .  DeviceIDを入力し、STARTボタンを押下する。
-.. getCommandParameterFileが呼び出され、設定値が以下の通りであることをチェックする。（Errorの場合はメッセージ表示する。）
+.. getCommandParameterFileが呼び出され、設定値が下記の通りであることをチェックする。（Errorの場合はメッセージ表示する。）
 ** Mode=1(Image&Inference Result)
 ** UploadMethodIR="Mqtt"
 .. startUploadが呼び出され、推論結果と画像のアップロードが開始される。
@@ -102,7 +106,7 @@
 
 == 操作性仕様、画面仕様
 === 画面仕様
-image::./ScreenSpec_SampleApp.png[width="700"]
+image::./ScreenSpec_SampleApp_ja.png[width="700"]
 
 === 操作性仕様
 ==== サンプルアプリケーション起動までの操作
@@ -118,9 +122,9 @@ image::./ScreenSpec_SampleApp.png[width="700"]
 . サンプルアプリケーションを起動する。
 
 ==== サンプルアプリケーション起動後の操作
-. DeviceIDを選択する。
-. *[START]* ボタンを押下することで、最新の画像/推論結果の取得を開始し、画面上に表示される。
-. *[STOP]* ボタンを押下することで、最新の画像/推論結果の取得が停止する。
+. [**DeviceID**]を選択する。
+. [**START**]ボタンを押下することで、最新の画像/推論結果の取得を開始し、画面上に表示される。
+. [**STOP**]ボタンを押下することで、最新の画像/推論結果の取得が停止する。
 
 == 各BlockでのAPIパラメータ
 === GET
@@ -129,6 +133,10 @@ image::./ScreenSpec_SampleApp.png[width="700"]
 **  DeviceIDのリストを取得し返却する。
 |===
 |Query Parameter’s name|Meaning|Range of parameter
+
+|-
+|-
+|-
 
 |===
 |===
@@ -219,10 +227,10 @@ image::./ScreenSpec_SampleApp.png[width="700"]
 |===
 
 == 目標性能
-* 無し
+* なし
 
 == 制限事項
-* Console UIから、Command Parameter Fileを以下の設定にする。
+* Console UIから、Command Parameter Fileを下記の設定にする。
 ** Mode=1(Image&Inference Result)
 ** UploadMethodIR="Mqtt"
 * ベースAIモデルは、Object Detectionがデプロイされている。
@@ -230,8 +238,6 @@ image::./ScreenSpec_SampleApp.png[width="700"]
 
 == その他特記事項
 * エッジAIデバイスからクラウドへの画像アップロード時に、最大数分程度の遅延が発生することがある。
-* Command Parameter Fileの設定APIが作成され次第、Cloud SDK経由で設定できるようになる。
-* アクセストークンの取得は、Cloud SDKの機能を使用して行う。
 
 == 未決定事項
-* 無し
+* なし

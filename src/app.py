@@ -16,8 +16,7 @@ limitations under the License.
 
 import json
 from flask import Flask, jsonify, render_template, request
-from console_access_library.client import set_logger
-from console_access_library.common.logger import Logger
+from console_access_library import set_logger
 from src.common import get_client, get_deserialize_data
 
 app = Flask(__name__)
@@ -92,7 +91,7 @@ def get_command_parameter_file():
         if "error_code" in response.keys():
             error_response = {
                 "result": "ERROR",
-                "message": "get_command_paramerer_data failed"
+                "message": "get_command_parameter_data failed"
             }
             return jsonify(error_response), 500
 
@@ -106,7 +105,8 @@ def get_command_parameter_file():
                     else:
                         mode = "0"
                     if "UploadMethodIR" in parameter["parameter"]["commands"][0]["parameters"]:
-                        upload_method_IR = parameter["parameter"]["commands"][0]["parameters"]["UploadMethodIR"]
+                        upload_method_IR = \
+                            parameter["parameter"]["commands"][0]["parameters"]["UploadMethodIR"]
                     else:
                         upload_method_IR = "Mqtt"
         command_param = {
@@ -143,11 +143,17 @@ def get_image_and_inference():
             return jsonify(error_response), 400
 
         client_obj = get_client.get_console_client()
-        image_response = client_obj.insight.get_images(device_id, sub_dir)
-        latest_image_data = "data:image/jpg;base64," + image_response["images"][-1]["contents"]
-        latest_image_ts = image_response["images"][-1]["name"].replace(".jpg", "")
+        image_response = client_obj.insight.get_images(device_id,
+                                                       sub_dir,
+                                                       number_of_images=1,
+                                                       order_by="DESC")
+        latest_image_data = "data:image/jpg;base64," + image_response["images"][0]["contents"]
+        latest_image_ts = image_response["images"][0]["name"].replace(".jpg", "")
 
-        inference_response = client_obj.insight.get_inference_results(device_id, number_of_inference_results=1, raw=1, time=latest_image_ts)
+        inference_response = client_obj.insight.get_inference_results(device_id,
+                                                                      number_of_inference_results=1,
+                                                                      raw=1,
+                                                                      time=latest_image_ts)
         latest_inference_data = inference_response[0]["inferences"][0]["O"]
 
         # deserialize
@@ -188,7 +194,11 @@ def start_upload_inference_result():
             }
             return jsonify(error_response), 500
 
-        return jsonify(response)
+        start_response = {
+            "outputSubDirectory": response["outputSubDirectory"],
+            "result": response["result"]
+        }
+        return jsonify(start_response)
     except Exception as error:
         error_response = {
             "result": "ERROR",
@@ -218,7 +228,10 @@ def stop_upload_inference_result():
                 "message": error_message
             }
             return jsonify(error_response), 500
-        return jsonify(response)
+        stop_response = {
+            "result": response["result"]
+        }
+        return jsonify(stop_response)
 
     except Exception as error:
         error_response = {
@@ -229,5 +242,5 @@ def stop_upload_inference_result():
 
 
 if __name__ == "__main__":
-    set_logger(Logger.INFO)
+    set_logger("INFO")
     app.run(debug=True)

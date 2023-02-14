@@ -5,3 +5,4 @@ __pycache__/
 .coverage
 build/
 report.html
+src/common/console_access_settings.yaml

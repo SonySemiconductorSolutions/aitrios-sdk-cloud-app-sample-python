@@ -1,0 +1,232 @@
+= Cloud SDK pass:[<br/>] Sample Application pass:[<br/>] Python pass:[<br/>] Functional Specifications pass:[<br/>]
+:sectnums:
+:sectnumlevels: 1
+:author: Copyright 2023 Sony Semiconductor Solutions Corporation
+:version-label: Version 
+:revnumber: x.x.x
+:revdate: YYYY - MM - DD
+:trademark-desc1: AITRIOS™ and AITRIOS logos are the registered trademarks or trademarks
+:trademark-desc2: of Sony Group Corporation or its affiliated companies.
+:toc:
+:toc-title: TOC
+:toclevels: 1
+:chapter-label:
+:lang: en
+
+== Change history
+
+|===
+|Date |What/Why
+
+|2022/12/12
+|Initial draft
+
+|2023/1/30
+|Unified the swinging of expressions + 
+Fixed the notation + 
+Updated the PDF build environment
+
+|===
+
+== Introduction
+
+* This book is functional specifications for a sample application that provides developers with ways to use and take advantage of the Cloud SDK for Python.
+** Python is used as the function development language.
+** The application framework uses Flask.
+
+== Terms/Abbreviations
+|===
+|Terms/Abbreviations |Meaning 
+
+|Cloud SDK
+|SDK providing a way to access the Console
+
+|Console
+|A cloud service that provides various functions (Deployment, Retraining, Edge AI Device Management etc.) to efficiently implement solutions from edge to cloud
+
+|Inference result
+|AI-processed metadata among outputs from Vision and Sensing Applications
+
+|Image
+|Image data captured by edge AI devices among outputs from Vision and Sensing Applications
+
+|===
+
+== Reference materials
+* Cloud SDK for Python used in sample applications
+** https://github.com/SonySemiconductorSolutions/aitrios-sdk-console-access-lib-python
+
+
+== Expected use case
+* Provide ways to use and take advantage of the Cloud SDK for Python.
+** Users can see how applications using the Cloud SDK work by launching applications in the repository.
+** Users can see how to use the Cloud SDK by reviewing the source code.
+
+== Functional overview/Algorithm
+[NOTE]
+=== Functional overview
+* Users can see the latest image and inference results on the screen.
+** The base AI model only supports Object Detection.
+* The Start/Stop button will appear by selecting the DeviceID.
+* By pressing the START button, the latest image/inference results is gotten and displayed on the screen.
+* By pressing the STOP button, getting the latest image/inference result is stopped.
+
+
+=== Algorithm
+. Launch the screen.
+.. Call the getDeviceData.
+.. Display the returned data in the DeviceID selection field.
+.  DeviceID is entered, the START button is pressed.
+.. Call the getCommandParameterFile to check that the settings are as follows. (Display a message if there is an error.)
+** Mode=1(Image&Inference Result)
+** UploadMethodIR="Mqtt"
+.. Call the startUpload to start upload of inference results and images.
+.. Call getImageAndInference periodically to get inference results and images.
+.. Display the gotten data on the screen.
+. Press the STOP button.
+.. Call the stopUpload.
+
+=== Under what condition
+* Have access to the Console.
+* A Python development environment has been built.
+** A Codespaces environment is also available.
+** Python version is 3.10.
+* An edge AI device is connected to the Console and ready to accept operations from the Console.
+
+=== API
+* GET
+** {base_url}/getDeviceData
+** {base_url}/getCommandParameterFile/device_id
+** {base_url}/getImageAndInference/device_id/sub_directory_name
+* POST
+** {base_url}/startUpload/device_id
+** {base_url}/stopUpload/device_id
+
+=== Others exclusive conditions/Specifications
+* None
+
+== User interface specifications
+=== Screen specifications
+image::./ScreenSpec_SampleApp.png[width="700"]
+
+=== Operability Specifications
+==== Operation to launch the sample application
+==== When to use Codespaces
+. Developers open the repository of the sample application from any browser and launch Codespaces.
+. Build containers in the cloud with reference to configuration files that exist in repositories.
+. Use the built container in the browser or from VS Code.
+. Launch the sample application.
+
+==== When not to use Codespaces
+. Developers open the repository of the sample application from any browser and clone the repository.
+. Install the necessary packages for the cloned sample application.
+. Launch the sample application.
+
+==== After starting the sample application
+. Select the [**DeviceID**].
+. By pressing the [**START**] button, the latest image/inference results is gotten and displayed on the screen.
+. By pressing the [**STOP**] button, getting the latest image/inference result is stopped.
+
+== API parameters in each block
+=== GET
+
+* {base_url}/getDeviceData
+**  Get and return the list of DeviceIDs.
+|===
+|Query Parameter’s name|Meaning|Range of parameter
+
+|- |- |-
+
+|===
+|===
+|Return value|Meaning
+
+|device_data
+|Object where DeviceIDs are stored
+|===
+
+* {base_url}/getCommandParameterFile/device_id
+** Get the list of Command Parameter Files registered in the Console and return the settings.
+|===
+|Query Parameter’s name|Meaning|Range of parameter
+
+|device_id |DeviceID uploading images and inference results |Not specified
+
+|===
+|===
+|Return value|Meaning
+
+|mode
+|Mode settings registered in the Console
+
+|upload_methodIR
+|UploadMethodIR settings registered in the Console
+|===
+
+* {base_url}/getImageAndInference/device_id/sub_directory_name
+** Get and return inference results and images for the specified edge AI device.
+|===
+|Query Parameter’s name|Meaning|Range of parameter
+
+|device_id |DeviceID uploading images and inference results |Not specified
+
+|sub_directory_name |Path where images are stored |Not specified
+
+|===
+|===
+|Return value|Meaning
+
+|image_and_inference
+|Object where image paths and inference results are stored
+|===
+
+=== POST
+* {base_url}/startUpload/device_id
+** Request to start uploading inference results and images for the specified DeviceID.
+|===
+|Body Parameter’s name|Meaning|Range of parameter
+
+|device_id |DeviceID to start uploading images and inference results |Not specified
+
+|===
+|===
+|Return value|Meaning
+
+|result
+|SUCCESS or ERROR string
+
+|output_sub_directory
+|Input image storage path
+
+|===
+
+* {base_url}/stopUpload/device_id
+** Request to stop uploading inference results and images for the specified DeviceID.
+|===
+|Body Parameter’s name|Meaning|Range of parameter
+
+|device_id |DeviceID to stop uploading images and inference results |Not specified
+
+|===
+|===
+|Return value|Meaning
+
+|result
+|SUCCESS or ERROR string
+|===
+
+== Target performances/Impact on performances
+* None
+
+== Assumption/Restriction
+* From the Console UI, set the Command Parameter File to the following setting.
+** Mode=1(Image&Inference Result)
+** UploadMethodIR="Mqtt"
+* Object detection is deployed as the base AI model.
+* If you select an edge AI device that does not have an AI model or application deployed at runtime, it will not work properly.
+
+== Remarks
+* Image uploads from edge AI devices to the cloud can experience delays of up to several minutes.
+
+== Unconfirmed items
+* None
