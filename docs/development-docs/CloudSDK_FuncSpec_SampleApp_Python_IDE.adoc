@@ -1,0 +1,104 @@
+= Cloud SDK pass:[<br/>] Sample Application pass:[<br/>] Python IDE pass:[<br/>] Functional Specifications pass:[<br/>]
+:sectnums:
+:sectnumlevels: 1
+:author: Copyright 2023 Sony Semiconductor Solutions Corporation
+:version-label: Version 
+:revnumber: x.x.x
+:revdate: YYYY - MM - DD
+:trademark-desc1: AITRIOS™ and AITRIOS logos are the registered trademarks or trademarks
+:trademark-desc2: of Sony Group Corporation or its affiliated companies.
+:toc:
+:toc-title: TOC
+:toclevels: 1
+:chapter-label:
+:lang: en
+
+== Change history
+
+|===
+|Date |What/Why
+
+|2022/11/16
+|Initial draft
+
+|2023/1/30
+|Unified the swinging of expressions + 
+Updated the PDF build environment
+
+|===
+
+== Introduction
+* This book is functional specifications of a Codespaces development environment for Python.
+
+== Terms/Abbreviations
+|===
+|Terms/Abbreviations |Meaning 
+
+|Console Access Library
+|SDK that provides access to the Console for AITRIOS
+
+|Codespaces
+|Cloud-hosted and containerized VS Code environment from GitHub
+
+|===
+
+== Reference materials
+* Codespaces documentation (external link)
+** https://docs.github.com/ja/codespaces
+
+== Expected use case
+* Provide a Codespaces development environment for Python.
+** Users can launch Codespaces from the repository and get a development environment for Python with SDK-provided libraries and tools to aid development.
+
+== Functional overview/Algorithm
+=== Functional overview
+* Users can launch Codespaces from the repository and get a development environment for Python.
+** As an editor, VS Code's UI runs in the browser.
+
+* Provide an environment in which SDK-provided libraries required for application development can be used.
+** Add submodules from the GitHub repository to the environment.
+
+* Provide an environment where development aids can be used.
+** Add extensions to the environment to facilitate development work, such as input completion and debugging aids.
+
+=== Algorithm
+. Build a container environment using a specified Python base image.
+. Visit the VS Code's marketplace to install the extension.
+** Python + 
+Features for the Python development environment are available.
+** Pylance + 
+Input completion is available in the Python environment.
+** Jupyter
+** Jupyter Keymap + 
+Jupyter Notebook is available on VS Code as a debugging aid for Python development.
+
+. Run shell scripts to add libraries to the environment as submodules.
+** Console Access Library + 
+Provide access to the Console for AITRIOS.
+
+=== Under what condition
+* You have access to Codespaces. +
+* You have access to the private repository for the Console Access Library.
+
+=== API
+* None
+
+=== Others exclusive conditions/Specifications
+* None
+
+== User interface specifications
+=== How to start 
+* Procedures to build an environment with Codespaces + 
+User forks the development environment (repository) and launches Codespaces on the replicated repository. After launch, a prep screen provided by Codespaces is displayed while the environment is being built.
+
+== API parameters in each block
+* None
+
+== Target performances/Impact on performances
+* None
+
+== Assumption/Restriction
+* None
+
+== Unconfirmed items
+* None

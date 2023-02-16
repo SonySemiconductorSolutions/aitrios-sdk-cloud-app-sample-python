@@ -19,6 +19,9 @@ import sys
 import warnings
 
 from console_access_library.client import Client
+from console_access_library.common.config import Config
+from console_access_library.common.read_console_access_settings import \
+    ReadConsoleAccessSettings
 
 warnings.filterwarnings("ignore")
 sys.path.append(".")
@@ -27,10 +30,17 @@ sys.path.append(".")
 def get_console_client():
     """Get access information from yaml and generate ConsoleAccess client
     Returns:
-        ConsoleAccessClient: CosoleAccessClient Class generated from access information.
+        ConsoleAccessClient: ConsoleAccessClient Class generated from access information.
     """
 
     setting_file_path = os.path.join(os.getcwd(), "src", "common", "console_access_settings.yaml")
-    client_obj = Client(setting_file_path)
+    read_console_access_settings_obj = ReadConsoleAccessSettings(setting_file_path)
+    config_obj = Config(
+        read_console_access_settings_obj.console_endpoint,
+        read_console_access_settings_obj.portal_authorization_endpoint,
+        read_console_access_settings_obj.client_id,
+        read_console_access_settings_obj.client_secret
+    )
+    client_obj = Client(config_obj)
 
     return client_obj

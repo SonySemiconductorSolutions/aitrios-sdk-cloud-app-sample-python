@@ -1,39 +1,39 @@
 # aitrios-sdk-cloud-app-sample-python
 
 ## Contents <!-- omit in toc -->
-- [概要](#概要)
-  - [制限事項](#制限事項)
-- [スタートガイド](#スタートガイド)
-- [チュートリアル](#チュートリアル)
-- [ドキュメント](#ドキュメント)
-  - [機能仕様書](#機能仕様書)
-- [サポート](#サポート)
-- [参照](#参照)
-- [商標](#商標)
+- [Overview](#overview)
+  - [Restrictions](#restrictions)
+- [Getting Started](#getting-started)
+- [Tutorials](#tutorials)
+- [Documentation](#documentation)
+  - [Functional Specifications](#functional-specifications)
+- [Get support](#get-support)
+- [See also](#see-also)
+- [Trademark](#trademark)
 
-## 概要
-このリポジトリは、Python向けの Cloud SDK を利用したアプリケーションのサンプルコードと、開発環境を構築するための設定ファイルを提供します。<br>
+## Overview
+This repository provides sample code for applications using Cloud SDK for Python, as well as configuration files for building a development environment.<br>
 
-### 制限事項
-なし
+### Restrictions
+None
 
-## スタートガイド
-[SDK スタートガイド]( https://developer.aitrios.sony-semicon.com/development-guides/get-started/setup-dev/)を参照してください。
+## Getting Started
+See the ["SDK Getting Started"]( https://developer.aitrios.sony-semicon.com/development-guides/get-started/setup-dev/).
 
-## チュートリアル
-チュートリアルを利用してConsole Access Library Python版の利用方法やアプリケーションの実装例を体験することができます。
-詳細は[Cloud SDK サンプルアプリケーション Python版 チュートリアル](https://developer.aitrios.sony-semicon.com/development-guides/tutorials/cloud-sdk/)を参照してください。
+## Tutorials
+You can use tutorial to experience how to use Console Access Library Python and how to implement an application.
+See the ["Cloud SDK Sample Application Python Tutorial"](https://developer.aitrios.sony-semicon.com/development-guides/tutorials/cloud-sdk/) for details.
 
-## ドキュメント
-### 機能仕様書
-- [Cloud SDK サンプルアプリケーション Python版 IDE 機能仕様書](./docs/development-docs/CloudSDK_FuncSpec_SampleApp_Python_IDE_ja.pdf)
-- [Cloud SDK サンプルアプリケーション Python版 機能仕様書](./docs/development-docs/CloudSDK_FuncSpec_SampleApp_Python_ja.pdf)
+## Documentation
+### Functional Specifications
+- [Cloud SDK Sample Application Python IDE Functional Specifications](./docs/development-docs/CloudSDK_FuncSpec_SampleApp_Python_IDE.pdf)
+- [Cloud SDK Sample Application Python Functional Specifications](./docs/development-docs/CloudSDK_FuncSpec_SampleApp_Python.pdf)
 
-## サポート
+## Get support
 - [Contact us](https://developer.aitrios.sony-semicon.com/contact-us/)
 
-## 参照
+## See also
 - [aitrios-sdk-console-access-lib-python](https://github.com/SonySemiconductorSolutions/aitrios-sdk-console-access-lib-python)
 
-## 商標
+## Trademark
 - [Read This First](https://developer.aitrios.sony-semicon.com/development-guides/documents/manuals/)
