@@ -20,13 +20,13 @@ ARG NODE_VERSION="16"
 RUN if [ "${NODE_VERSION}" != "none" ]; then su vscode -c "umask 0002 && . /usr/local/share/nvm/nvm.sh && nvm install ${NODE_VERSION} 2>&1"; fi
 
 ARG LIBRARY_DIR="/tmp/lib"
-ARG CONSOLE_LIB_DIR="${LIBRARY_DIR}/-2SCS_cloudSDK_python"
+ARG CONSOLE_LIB_DIR="${LIBRARY_DIR}/aitrios-sdk-console-access-lib-python"
 
 # Upgrading pip, setuptools
 RUN pip install --upgrade pip setuptools
 
 # Install the Console Python Library
-COPY .devcontainer/Dependencies/-2SCS_cloudSDK_python ${CONSOLE_LIB_DIR}
+COPY .devcontainer/Dependencies/aitrios-sdk-console-access-lib-python ${CONSOLE_LIB_DIR}
 RUN pip install ${CONSOLE_LIB_DIR}/lib/python-client
 RUN pip install ${CONSOLE_LIB_DIR}/src
 
