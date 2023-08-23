@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Sony Semiconductor Solutions Corp. All rights reserved.
+ * Copyright 2022, 2023 Sony Semiconductor Solutions Corp. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -178,12 +178,12 @@ function drawBoundingBox (image, inferenceData, labeldata) {
       }
       canvasContext.lineWidth = 3
       canvasContext.strokeStyle = 'rgb(255, 255, 0)'
-      canvasContext.strokeRect(value.X, value.Y, Math.abs(value.X - value.x), Math.abs(value.y - value.Y))
+      canvasContext.strokeRect(value.left, value.top, Math.abs(value.left - value.right), Math.abs(value.bottom - value.top))
       canvasContext.font = '20px Arial'
       canvasContext.fillStyle = 'rgba(255, 255, 0)'
-      const labelPointX = (value.x > 270 ? value.x - 70 : value.x)
-      const labelPointY = (value.y > 300 ? value.y - 10 : value.y)
-      canvasContext.fillText(labeldata[value.C] + ' ' + Math.round((value.P) * 100) + '%', labelPointX, labelPointY)
+      const labelPointX = (value.right > 270 ? value.right - 70 : value.right)
+      const labelPointY = (value.bottom > 300 ? value.bottom - 10 : value.bottom)
+      canvasContext.fillText(labeldata[value.class_id] + ' ' + Math.round((value.score) * 100) + '%', labelPointX, labelPointY)
     }
     
   }

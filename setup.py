@@ -1,5 +1,5 @@
 """
-Copyright 2022 Sony Semiconductor Solutions Corp. All rights reserved.
+Copyright 2022, 2023 Sony Semiconductor Solutions Corp. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import os
 from setuptools import find_packages, setup
 
 PACKAGE_NAME = "flask_sample_app"
-PACKAGE_VERSION = "0.2.0"
+PACKAGE_VERSION = "1.0.0"
 PACKAGE_DESCRIPTION = "flask_sample_app"
 AUTHOR_NAME = "Sony Semiconductor Solutions Corporation"
 AUTHOR_EMAIL = ""
@@ -41,7 +41,7 @@ setup(
     python_requires=">=3.7, <4",
     install_requires=[
         'flask',
-        'flatbuffers==1.11.0',
+        'flatbuffers==23.1.21',
         f'console-access-library @ file://{root_dir}/.devcontainer/Dependencies/aitrios-sdk-console-access-lib-python/src',
         f'aitrios-console-rest-client-sdk-primitive @ file://{root_dir}/.devcontainer/'
         'Dependencies/aitrios-sdk-console-access-lib-python/lib/python-client'

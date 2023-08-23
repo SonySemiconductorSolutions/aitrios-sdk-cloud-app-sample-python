@@ -1,5 +1,5 @@
 """
-Copyright 2022 Sony Semiconductor Solutions Corp. All rights reserved.
+Copyright 2023 Sony Semiconductor Solutions Corp. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,18 +18,23 @@ limitations under the License.
 # namespace: SmartCamera
 
 import flatbuffers
-
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
 class BoundingBox2d(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsBoundingBox2d(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = BoundingBox2d()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsBoundingBox2d(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # BoundingBox2d
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
@@ -57,22 +62,26 @@ class BoundingBox2d(object):
 
     # BoundingBox2d
     def Bottom(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(
-            self._tab.Offset(10))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
         if o != 0:
             return self._tab.Get(flatbuffers.number_types.Int32Flags, o + self._tab.Pos)
         return 0
 
-
 def BoundingBox2dStart(builder): builder.StartObject(4)
+def Start(builder):
+    return BoundingBox2dStart(builder)
 def BoundingBox2dAddLeft(builder, left): builder.PrependInt32Slot(0, left, 0)
+def AddLeft(builder, left):
+    return BoundingBox2dAddLeft(builder, left)
 def BoundingBox2dAddTop(builder, top): builder.PrependInt32Slot(1, top, 0)
-
-
-def BoundingBox2dAddRight(
-    builder, right): builder.PrependInt32Slot(2, right, 0)
-def BoundingBox2dAddBottom(
-    builder, bottom): builder.PrependInt32Slot(3, bottom, 0)
-
-
+def AddTop(builder, top):
+    return BoundingBox2dAddTop(builder, top)
+def BoundingBox2dAddRight(builder, right): builder.PrependInt32Slot(2, right, 0)
+def AddRight(builder, right):
+    return BoundingBox2dAddRight(builder, right)
+def BoundingBox2dAddBottom(builder, bottom): builder.PrependInt32Slot(3, bottom, 0)
+def AddBottom(builder, bottom):
+    return BoundingBox2dAddBottom(builder, bottom)
 def BoundingBox2dEnd(builder): return builder.EndObject()
+def End(builder):
+    return BoundingBox2dEnd(builder)

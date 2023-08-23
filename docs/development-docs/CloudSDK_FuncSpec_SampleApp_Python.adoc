@@ -26,11 +26,15 @@
 Fixed the notation + 
 Updated the PDF build environment
 
+|2023/5/26
+|Fixed parenthesis notation for tool names + 
+Added alternate text to images
+
 |===
 
 == Introduction
 
-* This book is functional specifications for a sample application that provides developers with ways to use and take advantage of the Cloud SDK for Python.
+* This book is functional specifications for a sample application that provides developers with ways to use and take advantage of the "**Cloud SDK**" for Python.
 ** Python is used as the function development language.
 ** The application framework uses Flask.
 
@@ -38,29 +42,29 @@ Updated the PDF build environment
 |===
 |Terms/Abbreviations |Meaning 
 
-|Cloud SDK
-|SDK providing a way to access the Console
+|"**Cloud SDK**"
+|SDK providing a way to access the "**Console**"
 
-|Console
+|"**Console**"
 |A cloud service that provides various functions (Deployment, Retraining, Edge AI Device Management etc.) to efficiently implement solutions from edge to cloud
 
 |Inference result
-|AI-processed metadata among outputs from Vision and Sensing Applications
+|AI-processed metadata among outputs from "**Vision and Sensing Applications**"
 
 |Image
-|Image data captured by edge AI devices among outputs from Vision and Sensing Applications
+|Image data captured by edge AI devices among outputs from "**Vision and Sensing Applications**"
 
 |===
 
 == Reference materials
-* Cloud SDK for Python used in sample applications
+* "**Cloud SDK**" for Python used in sample applications
 ** https://github.com/SonySemiconductorSolutions/aitrios-sdk-console-access-lib-python
 
 
 == Expected use case
-* Provide ways to use and take advantage of the Cloud SDK for Python.
-** Users can see how applications using the Cloud SDK work by launching applications in the repository.
-** Users can see how to use the Cloud SDK by reviewing the source code.
+* Provide ways to use and take advantage of the "**Cloud SDK**" for Python.
+** Users can see how applications using the "**Cloud SDK**" work by launching applications in the repository.
+** Users can see how to use the "**Cloud SDK**" by reviewing the source code.
 
 == Functional overview/Algorithm
 [NOTE]
@@ -87,11 +91,11 @@ Updated the PDF build environment
 .. Call the stopUpload.
 
 === Under what condition
-* Have access to the Console.
+* Have access to the "**Console**".
 * A Python development environment has been built.
 ** A Codespaces environment is also available.
 ** Python version is 3.10.
-* An edge AI device is connected to the Console and ready to accept operations from the Console.
+* An edge AI device is connected to the "**Console**" and ready to accept operations from the "**Console**".
 
 === API
 * GET
@@ -107,7 +111,7 @@ Updated the PDF build environment
 
 == User interface specifications
 === Screen specifications
-image::./ScreenSpec_SampleApp.png[width="700"]
+image::./ScreenSpec_SampleApp.png[alt="Screen specifications", width="700"]
 
 === Operability Specifications
 ==== Operation to launch the sample application
@@ -146,7 +150,7 @@ image::./ScreenSpec_SampleApp.png[width="700"]
 |===
 
 * {base_url}/getCommandParameterFile/device_id
-** Get the list of Command Parameter Files registered in the Console and return the settings.
+** Get the list of Command Parameter Files registered in the "**Console**" and return the settings.
 |===
 |Query Parameter’s name|Meaning|Range of parameter
 
@@ -157,10 +161,10 @@ image::./ScreenSpec_SampleApp.png[width="700"]
 |Return value|Meaning
 
 |mode
-|Mode settings registered in the Console
+|Mode settings registered in the "**Console**"
 
 |upload_methodIR
-|UploadMethodIR settings registered in the Console
+|UploadMethodIR settings registered in the "**Console**"
 |===
 
 * {base_url}/getImageAndInference/device_id/sub_directory_name
@@ -219,9 +223,10 @@ image::./ScreenSpec_SampleApp.png[width="700"]
 * None
 
 == Assumption/Restriction
-* From the Console UI, set the Command Parameter File to the following setting.
+* From the "**Console**" UI, set the Command Parameter File to the following setting:
 ** Mode=1(Image&Inference Result)
 ** UploadMethodIR="Mqtt"
+** Other parameters need to be changed depending on the AI model and application content
 * Object detection is deployed as the base AI model.
 * If you select an edge AI device that does not have an AI model or application deployed at runtime, it will not work properly.
 

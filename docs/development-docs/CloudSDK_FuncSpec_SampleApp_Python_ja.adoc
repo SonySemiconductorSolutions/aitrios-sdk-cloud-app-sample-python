@@ -25,11 +25,15 @@
 記法修正 + 
 PDFビルド環境更新
 
+|2023/5/26
+|ツール名の括弧の表記の修正 + 
+図の代替テキスト追加
+
 |===
 
 == はじめに
 
-* 本書は、Python版Cloud SDKの利用方法や活用方法を開発者に提供するサンプルアプリケーションについての機能仕様である。
+* 本書は、Python版「**Cloud SDK**」の利用方法や活用方法を開発者に提供するサンプルアプリケーションについての機能仕様である。
 ** 機能開発言語には、Pythonを使用する。
 ** アプリケーションフレームワークはFlaskを使用する。
 
@@ -37,29 +41,29 @@ PDFビルド環境更新
 |===
 |Terms/Abbreviations |Meaning 
 
-|Cloud SDK
-|Consoleへのアクセス方法を提供するSDK
+|「**Cloud SDK**」
+|「**Console**」へのアクセス方法を提供するSDK
 
-|Console
+|「**Console**」
 |エッジからクラウドを含めたソリューションを効率的に導入するための各種機能（デプロイメント機能、リトレーニング機能、エッジAIデバイスマネジメント機能など）を提供するクラウドサービス
 
 |推論結果
-|Vision and Sensing Applicationからの出力のうち、AI処理されたメタデータ
+|「**Vision and Sensing Application**」からの出力のうち、AI処理されたメタデータ
 
 |画像
-|Vision and Sensing Applicationからの出力のうち、エッジAIデバイスがとらえているイメージデータ
+|「**Vision and Sensing Application**」からの出力のうち、エッジAIデバイスがとらえているイメージデータ
 
 |===
 
 == 参照資料
-* サンプルアプリケーションで利用するPython版Cloud SDK
+* サンプルアプリケーションで利用するPython版「**Cloud SDK**」
 ** https://github.com/SonySemiconductorSolutions/aitrios-sdk-console-access-lib-python
 
 
 == 想定ユースケース
-* Python版Cloud SDKの利用方法や活用方法を提供できる。
-** ユーザーはリポジトリ内のアプリを起動することで、Cloud SDKを利用したアプリの動作を確認できる。
-** ユーザーはソースコードを確認することで、Cloud SDKの利用方法を確認できる。
+* Python版「**Cloud SDK**」の利用方法や活用方法を提供できる。
+** ユーザーはリポジトリ内のアプリを起動することで、「**Cloud SDK**」を利用したアプリの動作を確認できる。
+** ユーザーはソースコードを確認することで、「**Cloud SDK**」の利用方法を確認できる。
 
 == 機能概要、アルゴリズム
 [NOTE]
@@ -86,11 +90,11 @@ PDFビルド環境更新
 .. stopUploadが呼び出される。
 
 === Under what condition
-* Consoleへのアクセスができること。
+* 「**Console**」へのアクセスができること。
 * Pythonの開発環境が構築されていること。
 ** Codespaces環境も利用可能。
 ** Pythonのversionは3.10
-* エッジAIデバイスがConsoleに接続されており、Consoleからの操作を受けつける状態である。
+* エッジAIデバイスが「**Console**」に接続されており、「**Console**」からの操作を受けつける状態である。
 
 === API
 * GET
@@ -106,7 +110,7 @@ PDFビルド環境更新
 
 == 操作性仕様、画面仕様
 === 画面仕様
-image::./ScreenSpec_SampleApp_ja.png[width="700"]
+image::./ScreenSpec_SampleApp_ja.png[alt="画面仕様", width="700"]
 
 === 操作性仕様
 ==== サンプルアプリケーション起動までの操作
@@ -147,7 +151,7 @@ image::./ScreenSpec_SampleApp_ja.png[width="700"]
 |===
 
 * {base_url}/getCommandParameterFile/device_id
-** Consoleに登録されたCommand Parameter Fileの一覧取得し、設定値を返却する。
+** 「**Console**」に登録されたCommand Parameter Fileの一覧取得し、設定値を返却する。
 |===
 |Query Parameter’s name|Meaning|Range of parameter
 
@@ -160,10 +164,10 @@ image::./ScreenSpec_SampleApp_ja.png[width="700"]
 |Return value|Meaning
 
 |mode
-|Consoleに登録されているModeの設定値
+|「**Console**」に登録されているModeの設定値
 
 |upload_methodIR
-|Consoleに登録されているUploadMethodIRの設定値
+|「**Console**」に登録されているUploadMethodIRの設定値
 |===
 
 * {base_url}/getImageAndInference/device_id/sub_directory_name
@@ -230,9 +234,10 @@ image::./ScreenSpec_SampleApp_ja.png[width="700"]
 * なし
 
 == 制限事項
-* Console UIから、Command Parameter Fileを下記の設定にする。
+* 「**Console**」のUIから、Command Parameter Fileを下記の設定にする。
 ** Mode=1(Image&Inference Result)
 ** UploadMethodIR="Mqtt"
+** AIモデルやアプリケーションの内容に応じて、その他のパラメータも変更する必要がある
 * ベースAIモデルは、Object Detectionがデプロイされている。
 * 実行時にAIモデルやアプリケーションがデプロイされていないエッジAIデバイスを選択した場合、正常に動作しない。
 
