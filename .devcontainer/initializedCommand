@@ -17,8 +17,8 @@ set -ex
 
 # checkout git submodules before container creation at starting devcontainer/codespaces only first time.
 # (below if statement checking is a workaround of git CVE-2022-24765)
-if [[ ! "$(ls -A $PWD/.devcontainer/Dependencies/-2SCS_cloudSDK_python)" ]]
+if [[ ! "$(ls -A $PWD/.devcontainer/Dependencies/aitrios-sdk-console-access-lib-python)" ]]
 then
-    git submodule update --init --recursive $PWD/.devcontainer/Dependencies/-2SCS_cloudSDK_python
+    git submodule update --init --recursive $PWD/.devcontainer/Dependencies/aitrios-sdk-console-access-lib-python
 fi
 

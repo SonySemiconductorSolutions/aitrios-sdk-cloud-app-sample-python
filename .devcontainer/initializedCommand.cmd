@@ -15,9 +15,9 @@
 
 SET CMDDIR=%~dp0
 
-SET LIB=%CMDDIR%Dependencies\-2SCS_cloudSDK_python
+SET LIB=%CMDDIR%Dependencies\aitrios-sdk-console-access-lib-python
 
 dir /b /a  %LIB% | findstr "." >nul && (set EMPTY=0) || (set EMPTY=1)
 if %EMPTY% EQU 1 (
-    git submodule update --init --recursive .devcontainer\Dependencies\-2SCS_cloudSDK_python
+    git submodule update --init --recursive .devcontainer\Dependencies\aitrios-sdk-console-access-lib-python
 )
