@@ -1,5 +1,5 @@
 """
-Copyright 2022 Sony Semiconductor Solutions Corp. All rights reserved.
+Copyright 2022, 2023 Sony Semiconductor Solutions Corp. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@ limitations under the License.
 """
 
 import base64
-from src.common.deserialize import object_detection_top, bounding_box, bounding_box_2d
+from src.common.deserialize import ObjectDetectionTop, BoundingBox, BoundingBox2d
 
 
 def get_deserialize_data(serialize_data):
@@ -25,21 +25,21 @@ def get_deserialize_data(serialize_data):
     """
     buf = {}
     buf_decode = base64.b64decode(serialize_data)
-    ppl_out = object_detection_top.ObjectDetectionTop.GetRootAsObjectDetectionTop(buf_decode, 0)
+    ppl_out = ObjectDetectionTop.ObjectDetectionTop.GetRootAsObjectDetectionTop(buf_decode, 0)
     obj_data = ppl_out.Perception()
     res_num = obj_data.ObjectDetectionListLength()
     for i in range(res_num):
         obj_list = obj_data.ObjectDetectionList(i)
         union_type = obj_list.BoundingBoxType()
-        if union_type == bounding_box.BoundingBox.BoundingBox2d:
-            bbox_2d = bounding_box_2d.BoundingBox2d()
+        if union_type == BoundingBox.BoundingBox.BoundingBox2d:
+            bbox_2d = BoundingBox2d.BoundingBox2d()
             bbox_2d.Init(obj_list.BoundingBox().Bytes, obj_list.BoundingBox().Pos)
             buf[str(i + 1)] = {}
-            buf[str(i + 1)]['C'] = obj_list.ClassId()
-            buf[str(i + 1)]['P'] = obj_list.Score()
-            buf[str(i + 1)]['X'] = bbox_2d.Left()
-            buf[str(i + 1)]['Y'] = bbox_2d.Top()
-            buf[str(i + 1)]['x'] = bbox_2d.Right()
-            buf[str(i + 1)]['y'] = bbox_2d.Bottom()
+            buf[str(i + 1)]['class_id'] = obj_list.ClassId()
+            buf[str(i + 1)]['score'] = round(obj_list.Score(), 6)
+            buf[str(i + 1)]['left'] = bbox_2d.Left()
+            buf[str(i + 1)]['top'] = bbox_2d.Top()
+            buf[str(i + 1)]['right'] = bbox_2d.Right()
+            buf[str(i + 1)]['bottom'] = bbox_2d.Bottom()
 
     return buf

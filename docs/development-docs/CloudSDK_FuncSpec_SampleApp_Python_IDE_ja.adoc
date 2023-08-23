@@ -24,6 +24,9 @@
 |表現統一 + 
 PDFビルド環境更新
 
+|2023/5/26
+|FlatBuffersバージョン更新対応
+
 |===
 
 == はじめに
@@ -33,8 +36,8 @@ PDFビルド環境更新
 |===
 |Terms/Abbreviations |Meaning 
 
-|Console Access Library
-|Console for AITRIOSへのアクセス方法を提供するSDK
+|「**Console Access Library**」
+|「**Console for AITRIOS**」へのアクセス方法を提供するSDK
 
 |Codespaces
 |GitHubが提供するクラウドホスティングかつコンテナ化されたVS Code環境
@@ -72,12 +75,12 @@ Python環境にて入力補完機能を利用できる。
 Python開発にてデバッグ補助として VS Code上でJupyter Notebookを利用できる。
 
 . シェルスクリプトを実行し、提供ライブラリをサブモジュールとして環境に追加する。
-** Console Access Library +
-Console for AITRIOSへ接続できる。
+** 「**Console Access Library**」 +
+「**Console for AITRIOS**」へ接続できる。
 
 === Under what condition
 * Codespacesの利用権限を取得していること。 +
-* Console Access Libraryのプライベートリポジトリアクセス権限を取得していること。
+* 「**Console Access Library**」のプライベートリポジトリアクセス権限を取得していること。
 
 === API
 * なし

@@ -1,4 +1,6 @@
-[submodule ".devcontainer/Dependencies/aitrios-sdk-console-access-lib-python"]
-	path = .devcontainer/Dependencies/aitrios-sdk-console-access-lib-python
+[submodule ".devcontainer/Dependencies/-2SCS_cloudSDK_python"]
+	path = .devcontainer/Dependencies/-2SCS_cloudSDK_python
+	url = https://github.com/SonySemiconductorSolutions/-2SCS_cloudSDK_python.git
+[submodule "aitrios-sdk-console-access-lib-python"]
+	path = aitrios-sdk-console-access-lib-python
 	url = https://github.com/SonySemiconductorSolutions/aitrios-sdk-console-access-lib-python
-	branch = develop

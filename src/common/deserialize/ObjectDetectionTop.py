@@ -1,5 +1,5 @@
 """
-Copyright 2022 Sony Semiconductor Solutions Corp. All rights reserved.
+Copyright 2023 Sony Semiconductor Solutions Corp. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,18 +18,23 @@ limitations under the License.
 # namespace: SmartCamera
 
 import flatbuffers
-
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
 class ObjectDetectionTop(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsObjectDetectionTop(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = ObjectDetectionTop()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsObjectDetectionTop(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # ObjectDetectionTop
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
@@ -39,16 +44,18 @@ class ObjectDetectionTop(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
         if o != 0:
             x = self._tab.Indirect(o + self._tab.Pos)
-            from .object_detection_data import ObjectDetectionData
+            from .ObjectDetectionData import ObjectDetectionData
             obj = ObjectDetectionData()
             obj.Init(self._tab.Bytes, x)
             return obj
         return None
 
-
 def ObjectDetectionTopStart(builder): builder.StartObject(1)
-def ObjectDetectionTopAddPerception(builder, perception): builder.PrependUOffsetTRelativeSlot(
-    0, flatbuffers.number_types.UOffsetTFlags.py_type(perception), 0)
-
-
+def Start(builder):
+    return ObjectDetectionTopStart(builder)
+def ObjectDetectionTopAddPerception(builder, perception): builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(perception), 0)
+def AddPerception(builder, perception):
+    return ObjectDetectionTopAddPerception(builder, perception)
 def ObjectDetectionTopEnd(builder): return builder.EndObject()
+def End(builder):
+    return ObjectDetectionTopEnd(builder)
