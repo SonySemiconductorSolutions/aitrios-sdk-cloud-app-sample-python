@@ -42,9 +42,9 @@ setup(
     install_requires=[
         'flask',
         'flatbuffers==23.1.21',
-        f'console-access-library @ file://{root_dir}/.devcontainer/Dependencies/-2SCS_cloudSDK_python/src',
+        f'console-access-library @ file://{root_dir}/.devcontainer/Dependencies/aitrios-sdk-console-access-lib-python/src',
         f'aitrios-console-rest-client-sdk-primitive @ file://{root_dir}/.devcontainer/'
-        'Dependencies/-2SCS_cloudSDK_python/lib/python-client'
+        'Dependencies/aitrios-sdk-console-access-lib-python/lib/python-client'
         ],
     extras_require={
         "develop": [
