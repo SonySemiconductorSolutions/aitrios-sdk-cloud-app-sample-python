@@ -25,6 +25,9 @@
 |Unified the swinging of expressions + 
 Updated the PDF build environment
 
+|2023/5/26
+|Fixed parenthesis notation for tool names
+
 |===
 
 == Introduction
@@ -34,8 +37,8 @@ Updated the PDF build environment
 |===
 |Terms/Abbreviations |Meaning 
 
-|Console Access Library
-|SDK that provides access to the Console for AITRIOS
+|"**Console Access Library**"
+|SDK that provides access to the "**Console for AITRIOS**"
 
 |Codespaces
 |Cloud-hosted and containerized VS Code environment from GitHub
@@ -44,7 +47,7 @@ Updated the PDF build environment
 
 == Reference materials
 * Codespaces documentation (external link)
-** https://docs.github.com/ja/codespaces
+** https://docs.github.com/en/codespaces
 
 == Expected use case
 * Provide a Codespaces development environment for Python.
@@ -73,12 +76,12 @@ Input completion is available in the Python environment.
 Jupyter Notebook is available on VS Code as a debugging aid for Python development.
 
 . Run shell scripts to add libraries to the environment as submodules.
-** Console Access Library + 
-Provide access to the Console for AITRIOS.
+** "**Console Access Library**" + 
+Provide access to the "**Console for AITRIOS**".
 
 === Under what condition
 * You have access to Codespaces. +
-* You have access to the private repository for the Console Access Library.
+* You have access to the private repository for the "**Console Access Library**".
 
 === API
 * None

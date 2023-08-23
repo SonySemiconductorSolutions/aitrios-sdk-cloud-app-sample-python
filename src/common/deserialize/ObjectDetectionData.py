@@ -1,5 +1,5 @@
 """
-Copyright 2022 Sony Semiconductor Solutions Corp. All rights reserved.
+Copyright 2023 Sony Semiconductor Solutions Corp. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,18 +18,23 @@ limitations under the License.
 # namespace: SmartCamera
 
 import flatbuffers
-
+from flatbuffers.compat import import_numpy
+np = import_numpy()
 
 class ObjectDetectionData(object):
     __slots__ = ['_tab']
 
     @classmethod
-    def GetRootAsObjectDetectionData(cls, buf, offset):
+    def GetRootAs(cls, buf, offset=0):
         n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
         x = ObjectDetectionData()
         x.Init(buf, n + offset)
         return x
 
+    @classmethod
+    def GetRootAsObjectDetectionData(cls, buf, offset=0):
+        """This method is deprecated. Please switch to GetRootAs."""
+        return cls.GetRootAs(buf, offset)
     # ObjectDetectionData
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
@@ -41,7 +46,7 @@ class ObjectDetectionData(object):
             x = self._tab.Vector(o)
             x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 4
             x = self._tab.Indirect(x)
-            from .general_object import GeneralObject
+            from .GeneralObject import GeneralObject
             obj = GeneralObject()
             obj.Init(self._tab.Bytes, x)
             return obj
@@ -54,14 +59,20 @@ class ObjectDetectionData(object):
             return self._tab.VectorLen(o)
         return 0
 
+    # ObjectDetectionData
+    def ObjectDetectionListIsNone(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
+        return o == 0
 
 def ObjectDetectionDataStart(builder): builder.StartObject(1)
-
-
-def ObjectDetectionDataAddObjectDetectionList(builder, objectDetectionList): builder.PrependUOffsetTRelativeSlot(
-    0, flatbuffers.number_types.UOffsetTFlags.py_type(objectDetectionList), 0)
-def ObjectDetectionDataStartObjectDetectionListVector(
-    builder, numElems): return builder.StartVector(4, numElems, 4)
-
-
+def Start(builder):
+    return ObjectDetectionDataStart(builder)
+def ObjectDetectionDataAddObjectDetectionList(builder, objectDetectionList): builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(objectDetectionList), 0)
+def AddObjectDetectionList(builder, objectDetectionList):
+    return ObjectDetectionDataAddObjectDetectionList(builder, objectDetectionList)
+def ObjectDetectionDataStartObjectDetectionListVector(builder, numElems): return builder.StartVector(4, numElems, 4)
+def StartObjectDetectionListVector(builder, numElems):
+    return ObjectDetectionDataStartObjectDetectionListVector(builder, numElems)
 def ObjectDetectionDataEnd(builder): return builder.EndObject()
+def End(builder):
+    return ObjectDetectionDataEnd(builder)
