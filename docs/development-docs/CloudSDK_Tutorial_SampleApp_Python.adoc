@@ -75,7 +75,7 @@ Required settings are as follows:
 ** Other parameters need to be changed depending on the AI model and application content
 
 == Sample application operating environment
-See the https://developer.aitrios.sony-semicon.com/en/file/download/sdk-getting-started/["**SDK Getting Started**"].
+See the https://developer.aitrios.sony-semicon.com/en/downloads#sdk-getting-started["**SDK Getting Started**"].
 
 == Sample application functional overview
 The sample application implements the functionality required to specify an edge AI device enrolled in the "**Console**" and get inference results and images. + 

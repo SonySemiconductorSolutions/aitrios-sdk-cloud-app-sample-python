@@ -21,7 +21,7 @@ This repository provides sample code for applications using "**Cloud SDK**" for 
 None
 
 ## Getting Started
-See the ["**SDK Getting Started**"](https://developer.aitrios.sony-semicon.com/en/file/download/sdk-getting-started/).
+See the ["**SDK Getting Started**"](https://developer.aitrios.sony-semicon.com/en/downloads#sdk-getting-started).
 
 ## Tutorials
 You can use tutorial to experience how to use "**Console Access Library Python**" and how to implement an application.
