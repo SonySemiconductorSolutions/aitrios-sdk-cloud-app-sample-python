@@ -74,7 +74,7 @@ PDFビルド環境更新 +
 ** AIモデルやアプリケーションの内容に応じて、その他のパラメータも変更する必要がある
 
 == サンプルアプリケーション動作環境
-https://developer.aitrios.sony-semicon.com/file/download/develop-env-setup/[「**SDK スタートガイド**」]を参照してください。
+https://developer.aitrios.sony-semicon.com/downloads#sdk-getting-started[「**SDK スタートガイド**」]を参照してください。
 
 == サンプルアプリケーション機能概要
 サンプルアプリケーションでは、「**Console**」に登録されたエッジAIデバイスを指定し、アプリケーションが推論結果と画像を取得するために必要な機能を実装しています。 +
