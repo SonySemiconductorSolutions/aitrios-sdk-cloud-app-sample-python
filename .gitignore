@@ -6,3 +6,4 @@ __pycache__/
 build/
 report.html
 src/common/console_access_settings.yaml
+src/common/azure_access_settings.yaml
