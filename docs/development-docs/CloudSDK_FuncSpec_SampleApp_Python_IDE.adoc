@@ -94,7 +94,7 @@ Provide access to the "**Console for AITRIOS**".
 * Procedures to build an environment with Codespaces + 
 User forks the development environment (repository) and launches Codespaces on the replicated repository. After launch, a prep screen provided by Codespaces is displayed while the environment is being built.
 
-== API parameters in each block
+== API parameters
 * None
 
 == Target performances/Impact on performances

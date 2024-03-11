@@ -54,7 +54,7 @@ PDFビルド環境更新
 
 == 機能概要、アルゴリズム
 === Functional Overview
-* リポジトリからCodespacesを起動するだけで、Python開発環境を利用することができる。
+* リポジトリからCodespacesを起動するだけで、Python開発環境を利用できる。
 ** エディターとしてブラウザ上でVS CodeのUIが動く。
 
 * アプリケーション開発に必要となるSDK提供ライブラリが利用できる環境を提供する。
@@ -94,7 +94,7 @@ Python開発にてデバッグ補助として VS Code上でJupyter Notebookを�
 ユーザーは本開発環境（リポジトリ）をForkし、複製されたリポジトリ上でCodespacesを起動する。
 起動操作後、環境構築が行われている間Codespaces側が提供する準備画面が表示される。
 
-== 各BlockでのAPIパラメータ
+== APIパラメータ
 * なし
 
 == 目標性能

@@ -29,6 +29,9 @@ PDFビルド環境更新
 |ツール名の括弧の表記の修正 + 
 図の代替テキスト追加
 
+|2023/12/22
+|Console Developer Edition対応
+
 |===
 
 == はじめに
@@ -48,12 +51,22 @@ PDFビルド環境更新
 |エッジからクラウドを含めたソリューションを効率的に導入するための各種機能（デプロイメント機能、リトレーニング機能、エッジAIデバイスマネジメント機能など）を提供するクラウドサービス
 
 |推論結果
-|「**Vision and Sensing Application**」からの出力のうち、AI処理されたメタデータ
+|「**Edge Application**」からの出力のうち、AI処理されたメタデータ
 
 |画像
-|「**Vision and Sensing Application**」からの出力のうち、エッジAIデバイスがとらえているイメージデータ
+|「**Edge Application**」からの出力のうち、エッジAIデバイスがとらえているイメージデータ
+
+|Azure Blob Storage
+|Microsoft社が提供するオブジェクトストレージ
+
+|Local Storage
+|ユーザーがサンプルアプリケーションを動作させるデバイスのストレージ
+
+|Local HTTP Server
+|エッジAIデバイスが出力するデータをLocal Storageに保存する際に起動するサーバー
 
 |===
+NOTE: 「**Edge Application**」と「**Vision and Sensing Application**」は同義です。 
 
 == 参照資料
 * サンプルアプリケーションで利用するPython版「**Cloud SDK**」
@@ -62,38 +75,65 @@ PDFビルド環境更新
 
 == 想定ユースケース
 * Python版「**Cloud SDK**」の利用方法や活用方法を提供できる。
-** ユーザーはリポジトリ内のアプリを起動することで、「**Cloud SDK**」を利用したアプリの動作を確認できる。
+** ユーザーはリポジトリ内のアプリケーションを起動することで、「**Cloud SDK**」を利用したアプリケーションの動作を確認できる。
+** ユーザーはリポジトリ内のアプリケーションを起動することで、「**Console**」、Azure Blob Storage、Local Storageのいずれかにアップロードされたデータを確認できる。
 ** ユーザーはソースコードを確認することで、「**Cloud SDK**」の利用方法を確認できる。
 
 == 機能概要、アルゴリズム
 [NOTE]
 === Functional Overview
 * 最新画像と最新の推論結果を画面上で確認できる。
-** ベースAIモデルはObject Detectionのみ対応する。
+** AIモデルはObject Detectionのみ対応する。
 * DeviceIDを選択することで、Start/Stopボタンが表示される。
 * STARTボタンを押下することで、最新画像/最新推論結果を取得し画面に表示する。
 * STOPボタンを押下することで、最新画像/最新推論結果の取得を停止する。
 
 
 === Algorithm
+. src/common/get_client.pyの「CONNECTION_DESTINATION」に下記を記載する。
+* CONNECTION_DESTINATIONは下記の値を設定可能。
+** Service.Console
+** Service.Azure
+** Service.Local
 . 画面を起動する。
 .. getDeviceDataが呼び出される。
 .. 返却されたデータをDeviceID選択欄に表示する。
 .  DeviceIDを入力し、STARTボタンを押下する。
 .. getCommandParameterFileが呼び出され、設定値が下記の通りであることをチェックする。（Errorの場合はメッセージ表示する。）
 ** Mode=1(Image&Inference Result)
-** UploadMethodIR="Mqtt"
 .. startUploadが呼び出され、推論結果と画像のアップロードが開始される。
 .. getImageAndInferenceが定期呼び出しされ、推論結果と画像を取得する。
+* データの取得先は、利用するクラウドサービスやSDKを判断する抽象化層がsrc/common下の接続情報やsrc/common/get_client.pyのCONNECTION_DESTINATIONの設定値を元に判別する。
+... CONNECTION_DESTINATIONに「Service.Console」を指定した場合は、「**Console**」からデータを取得する。
+... CONNECTION_DESTINATIONに「Service.Azure」を指定した場合は、Azure Blob Storageからデータを取得する。
+... CONNECTION_DESTINATIONに「Service.Local」を指定した場合は、Local Storageからデータを取得する。
+
+* 接続情報や接続先指定に誤りがある場合は、データ取得時にエラーが表示される。
 .. 取得したデータは画面に表示される。
 . STOPボタンを押下する。
 .. stopUploadが呼び出される。
+.. Local HTTP Serverが保存したデータのファイル構成を、deviceIdとsubDirectoryを利用して変更する。 + 
+変更後のファイル構成は制限事項を参照とする。
+
 
 === Under what condition
 * 「**Console**」へのアクセスができること。
+* 「**Console**」やクラウドサービスを利用する場合は、それぞれの接続情報が用意されていること。
+** 「**Console**」を利用する場合はsrc/commonに console_access_settings.yaml があり、必要な接続情報が設定されていること。
+** 「**Console**」以外のクラウドサービスを利用する場合はsrc/commonに [サービス名]_access_settings.yaml があり、必要な接続情報が設定されていること。
+*** 例
+
+   azure_access_settings.yaml
+
+** Localストレージを使用する場合はsrc/common/get_client.pyの「LOCAL_ROOT」に参照するディレクトリのルートが記載されていること。
+*** 例
+
+   LOCAL_ROOT = 'C:\\any_place\\...'
+
+*** LOCAL_ROOTは絶対パスのみ設定可能。
 * Pythonの開発環境が構築されていること。
 ** Codespaces環境も利用可能。
-** Pythonのversionは3.10
+** Pythonのversionは3.11
 * エッジAIデバイスが「**Console**」に接続されており、「**Console**」からの操作を受けつける状態である。
 
 === API
@@ -118,16 +158,29 @@ image::./ScreenSpec_SampleApp_ja.png[alt="画面仕様", width="700"]
 . 開発者は任意のブラウザからサンプルアプリケーションのリポジトリを開きCodespacesを起動する。
 . クラウドでリポジトリ内に存在する設定ファイルを参考にコンテナを構築する。
 . 構築されたコンテナをブラウザ上またはVS Codeから利用する。
+. src/commonに接続情報が記載されている設定ファイルを配置する。
+. src/common/get_client.pyの「CONNECTION_DESTINATION」に接続先を記載する。
+** 「CONNECTION_DESTINATION」にはconsole/azure/localが設定可能。
+.. 「Service.Console」を設定した場合は「**Console**」からデータを取得する。
+.. 「Service.Azure」を設定した場合はAzure Blob Storageからデータを取得する。
+.. 「Service.Local」を設定した場合はsrc/common/get_client.pyの「LOCAL_ROOT」に設定されたパスからデータを取得する。
 . サンプルアプリケーションを起動する。
 
 ==== Codespacesを利用しない場合
 . 開発者は任意のブラウザからサンプルアプリケーションのリポジトリを開き、リポジトリをCloneする。
 . Cloneしたサンプルアプリケーションに必要なパッケージをインストールする。
+. src/commonに接続情報が記載されている設定ファイルを配置する。
+. src/common/get_client.pyの「CONNECTION_DESTINATION」に接続先を記載する。
+** 「CONNECTION_DESTINATION」にはconsole/azure/localが設定可能。
+.. 「Service.Console」を設定した場合は「**Console**」からデータを取得する。
+.. 「Service.Azure」を設定した場合はAzure Blob Storageからデータを取得する。
+.. 「Service.Local」を設定した場合はsrc/common/get_client.pyの「LOCAL_ROOT」に設定されたパスからデータを取得する。
 . サンプルアプリケーションを起動する。
 
 ==== サンプルアプリケーション起動後の操作
 . [**DeviceID**]を選択する。
 . [**START**]ボタンを押下することで、最新の画像/推論結果の取得を開始し、画面上に表示される。
+** 接続情報や接続先指定に誤りがある場合は、データ取得時にエラーが表示される。
 . [**STOP**]ボタンを押下することで、最新の画像/推論結果の取得が停止する。
 
 == 各BlockでのAPIパラメータ
@@ -215,11 +268,16 @@ image::./ScreenSpec_SampleApp_ja.png[alt="画面仕様", width="700"]
 
 * {base_url}/stopUpload/device_id
 ** 指定したDeviceIDに対して推論結果と画像のUpload停止を要求する。
+** 接続先がlocalの場合はLocal Storageのファイル構成を修正する。
 |===
 |Body Parameter’s name|Meaning|Range of parameter
 
 |device_id
 |画像と推論結果のUploadを停止させるDeviceID
+|指定なし
+
+|subDirectory
+|画像や推論結果が格納されるパス
 |指定なし
 
 |===
@@ -236,13 +294,53 @@ image::./ScreenSpec_SampleApp_ja.png[alt="画面仕様", width="700"]
 == 制限事項
 * 「**Console**」のUIから、Command Parameter Fileを下記の設定にする。
 ** Mode=1(Image&Inference Result)
-** UploadMethodIR="Mqtt"
+** FileFormat="JPG"
+** NumberOfInferencesPerMessage=1
 ** AIモデルやアプリケーションの内容に応じて、その他のパラメータも変更する必要がある
-* ベースAIモデルは、Object Detectionがデプロイされている。
-* 実行時にAIモデルやアプリケーションがデプロイされていないエッジAIデバイスを選択した場合、正常に動作しない。
+* AIモデルは、Object Detectionのみ対応
+* Local HTTP ServerがLocal Storageにデータを保存する際のファイル構成は下記とする。
+   
+   image
+   meta
+   Device ID
+      ∟image
+         ∟yyyyMMddHHmmssfff (1)
+            ∟yyyyMMddHHmmssfff.jpg (2)
+            ∟yyyyMMddHHmmssfff.jpg (2)
+      ∟meta
+         ∟yyyyMMddHHmmssfff (1)
+            ∟yyyyMMddHHmmssfff.txt (3)
+            ∟yyyyMMddHHmmssfff.txt (3)
+
+   (1) 推論開始時刻​
+   (2) 推論元画像ファイル(ファイル名は、推論元画像出力時刻)
+   (3) 推論結果ファイル(ファイル名は、推論結果出力時刻)
+
+* Azure Blob Storage利用時のデータファイル構成は下記とする。
+
+   Device ID
+      ∟image
+         ∟yyyyMMddHHmmssfff (1)
+            ∟yyyyMMddHHmmssfff.jpg (2)
+            ∟yyyyMMddHHmmssfff.jpg (2)
+      ∟metadata
+         ∟yyyyMMddHHmmssfff (1)
+            ∟yyyyMMddHHmmssfff.txt (3)
+            ∟yyyyMMddHHmmssfff.txt (3)
+
+   (1) 推論開始時刻​
+   (2) 推論元画像ファイル(ファイル名は、推論元画像出力時刻)
+   (3) 推論結果ファイル(ファイル名は、推論結果出力時刻)
+
+* Local Storageを使用中に、[Stop]ボタン押下時にエラーが発生した場合、画像・推論結果の移動処理が行われない。 +
+また、その状態のまま[Start]ボタンを押下した場合、 +
+直前にUploadしたデータと次に取得するデータが混ざってしまうため下記の対応が必要となる。
+** LOCAL_ROOTにある画像・推論結果の移動または削除
 
 == その他特記事項
 * エッジAIデバイスからクラウドへの画像アップロード時に、最大数分程度の遅延が発生することがある。
+* Command Parameter Fileの設定APIが作成され次第、「**Cloud SDK**」経由で設定できるようになる。
+* アクセストークンの取得は、「**Cloud SDK**」の機能を使用して行う。
 
 == 未決定事項
 * なし
