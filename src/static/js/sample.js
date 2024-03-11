@@ -15,10 +15,11 @@
  */
 
 let interval
+let upload_subDirectory
 
 // eslint-disable-next-line no-unused-vars
 function getDeviceData () {
-  fetch('/getDeviceData')
+  fetch("/getDeviceData")
     .then((res) => {
       if (!res.ok) {
         throw res
@@ -29,11 +30,11 @@ function getDeviceData () {
     .then((json) => {
       const deviceIdList = json.devices_data
       if (json.devices_data.length === 0) {
-        return window.alert('Connected device not found.')
+        return window.alert("Connected device not found.")
       }
-      const deviceElm = document.getElementById('device-id-list')
+      const deviceElm = document.getElementById("device-id-list")
       for (const elem of deviceIdList) {
-        const option = document.createElement('option')
+        const option = document.createElement("option")
         option.value = elem
         option.textContent = elem
         deviceElm.appendChild(option)
@@ -46,24 +47,26 @@ function getDeviceData () {
 
 // eslint-disable-next-line no-unused-vars
 function handleOnChangeDeviceId () {
-  const hiddenElements = Array.from(document.querySelectorAll('.hidden'))
+  const hiddenElements = Array.from(document.querySelectorAll(".hidden"))
   hiddenElements.forEach(element => {
-    element.classList.remove('hidden')
+    element.classList.remove("hidden")
   })
 }
 
 // eslint-disable-next-line no-unused-vars
 function handleOnClickStartBtn () {
-  const id = document.getElementById('device-id-list').value
-  const startBtn = document.getElementById('start-btn')
-  const stopBtn = document.getElementById('stop-btn')
+  const id = document.getElementById("device-id-list").value
+  const startBtn = document.getElementById("start-btn")
+  const stopBtn = document.getElementById("stop-btn")
+  const deviceIdList = document.getElementById("device-id-list")
 
   buttonDisable(startBtn)
+  deviceIdList.disabled = true
 
   const params = new URLSearchParams()
-  params.set('device_id', id)
+  params.set("device_id", id)
   
-  fetch('/getCommandParameterFile?' + params.toString())
+  fetch(`/getCommandParameterFile?${params.toString()}`)
   .then((res) => {
     if (!res.ok) {
       throw res
@@ -72,29 +75,30 @@ function handleOnClickStartBtn () {
     }
   })
   .then((json) => {
-    if (json.result === 'ERROR') {
+    if (json.result === "ERROR") {
+      buttonEnable(startBtn)
+      deviceIdList.disabled = false
       window.alert(json.message)
       return
     }
 
     if (!json.mode || !json.upload_methodIR) {
       buttonEnable(startBtn)
-      return window.alert('Command parm not found.')
+      deviceIdList.disabled = false
+      return window.alert("Command parm not found.")
     } else if (json.mode != "1"){
       buttonEnable(startBtn)
-      return window.alert('Set CommandParameter Mode to 1(Input Image & Inference Result).')
-    } else if (json.upload_methodIR.toUpperCase() != "MQTT"){
-      buttonEnable(startBtn)
-      return window.alert('Set CommandParameter UploadMethodIR to "Mqtt".')
+      deviceIdList.disabled = false
+      return window.alert("Set CommandParameter Mode to 1(Input Image & Inference Result).")
     }
 
     const fetchFormEncodedRequest = {
-      method: 'POST',
+      method: "POST",
       body: new URLSearchParams({
         device_id: id
       })
     }
-    fetch('/startUpload', fetchFormEncodedRequest)
+    fetch("/startUpload", fetchFormEncodedRequest)
       .then((res) => {
         if (!res.ok) {
           throw res
@@ -103,20 +107,23 @@ function handleOnClickStartBtn () {
         }
       })
       .then((json) => {
-        if (json.result === 'ERROR') {
+        if (json.result === "ERROR") {
           buttonEnable(startBtn)
+          deviceIdList.disabled = false
           window.alert(json.message)
           return
         }
-  
+        
+        parts = json.outputSubDirectory.split('/')
+        upload_subDirectory = parts[parts.length - 1]
         buttonEnable(stopBtn)
   
-        const subDirectoryPathList = json.outputSubDirectory.split('/')
+        const subDirectoryPathList = json.outputSubDirectory.split("/")
         const subDirectory = subDirectoryPathList[subDirectoryPathList.length - 1]
-        params.set('sub_directory_name', subDirectory)
+        params.set("sub_directory_name", subDirectory)
         
         let labelData
-        fetch('static/js/label.json')
+        fetch("static/js/label.json")
           .then(res => {
             return (res.json())
           })
@@ -127,19 +134,21 @@ function handleOnClickStartBtn () {
       })
       .catch((err) => {
         buttonEnable(startBtn)
+        deviceIdList.disabled = false
         handleResponseErr(err)
       })
 
   })
   .catch((err) => {
     buttonEnable(startBtn)
+    deviceIdList.disabled = false
     handleResponseErr(err)
   })
 
 }
 
 function getImageAndInference (params, labeldata) {
-  fetch('/getImageAndInference?' + params.toString())
+  fetch(`/getImageAndInference?${params.toString()}`)
     .then((res) => {
       if (!res.ok) {
         throw res
@@ -148,12 +157,12 @@ function getImageAndInference (params, labeldata) {
       }
     })
     .then((json) => {
-      if (json.result === 'ERROR') {
+      if (json.result === "ERROR") {
         window.alert(json.message)
         return
       }
       if (Object.keys(json).length === 0) {
-        return console.log('Waiting for image upload.')
+        return console.log("Waiting for image upload.")
       }
       drawBoundingBox(json.image, json.inference_data, labeldata)
     })
@@ -166,24 +175,24 @@ function drawBoundingBox (image, inferenceData, labeldata) {
   const img = new window.Image()
   img.src = image
   img.onload = () => {
-    const canvas = document.getElementById('canvas')
-    const canvasContext = canvas.getContext('2d')
+    const canvas = document.getElementById("canvas")
+    const canvasContext = canvas.getContext("2d")
     canvas.width = img.width
     canvas.height = img.height
     canvasContext.drawImage(img, 0, 0)
     
     for (const [key, value] of Object.entries(inferenceData)) {
-      if (key === 'T') {
+      if (key === "T") {
         continue
       }
       canvasContext.lineWidth = 3
-      canvasContext.strokeStyle = 'rgb(255, 255, 0)'
+      canvasContext.strokeStyle = "rgb(255, 255, 0)"
       canvasContext.strokeRect(value.left, value.top, Math.abs(value.left - value.right), Math.abs(value.bottom - value.top))
-      canvasContext.font = '20px Arial'
-      canvasContext.fillStyle = 'rgba(255, 255, 0)'
+      canvasContext.font = "20px Arial"
+      canvasContext.fillStyle = "rgba(255, 255, 0)"
       const labelPointX = (value.right > 270 ? value.right - 70 : value.right)
       const labelPointY = (value.bottom > 300 ? value.bottom - 10 : value.bottom)
-      canvasContext.fillText(labeldata[value.class_id] + ' ' + Math.round((value.score) * 100) + '%', labelPointX, labelPointY)
+      canvasContext.fillText(`${labeldata[value.class_id]} ${Math.round((value.score) * 100)}%` ,labelPointX, labelPointY)
     }
     
   }
@@ -192,18 +201,20 @@ function drawBoundingBox (image, inferenceData, labeldata) {
 // eslint-disable-next-line no-unused-vars
 function handleOnClickStopBtn () {
   clearInterval(interval)
-  const id = document.getElementById('device-id-list').value
-  const startBtn = document.getElementById('start-btn')
-  const stopBtn = document.getElementById('stop-btn')
+  const id = document.getElementById("device-id-list").value
+  const startBtn = document.getElementById("start-btn")
+  const stopBtn = document.getElementById("stop-btn")
+  const deviceIdList = document.getElementById("device-id-list")
   
   buttonDisable(stopBtn)
   const fetchFormEncodedRequest = {
-    method: 'POST',
+    method: "POST",
     body: new URLSearchParams({
-      device_id: id
+      device_id: id,
+      subDirectory: upload_subDirectory
     })
   }
-  fetch('/stopUpload', fetchFormEncodedRequest)
+  fetch("/stopUpload", fetchFormEncodedRequest)
     .then((res) => {
       if (!res.ok) {
         throw res
@@ -212,14 +223,13 @@ function handleOnClickStopBtn () {
       }
     })
     .then((json) => {
-      if (json.result === 'ERROR') {
+      if (json.result === "ERROR") {
         window.alert(json.message)
         buttonEnable(stopBtn)
         return
       }
-
+      deviceIdList.disabled = false
       buttonEnable(startBtn)
-
     })
     .catch((err) => {
       buttonEnable(stopBtn)
@@ -229,8 +239,8 @@ function handleOnClickStopBtn () {
 }
 
 function handleResponseErr (err) {
-  if (err.message === 'Failed to fetch') {
-    window.alert('Communication with server failed.')
+  if (err.message === "Failed to fetch") {
+    window.alert("Communication with server failed.")
   } else {
     err.json()
       .then(res => {
@@ -241,12 +251,12 @@ function handleResponseErr (err) {
 
 function buttonEnable(button){
   button.disabled = false
-  button.classList.add('button')
-  button.classList.remove('disableButton')
+  button.classList.add("button")
+  button.classList.remove("disableButton")
 }
 
 function buttonDisable(button){
   button.disabled = true
-  button.classList.add('disableButton')
-  button.classList.remove('button')
+  button.classList.add("disableButton")
+  button.classList.remove("button")
 }
