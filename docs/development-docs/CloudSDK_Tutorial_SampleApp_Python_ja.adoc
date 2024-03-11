@@ -36,12 +36,17 @@ PDFビルド環境更新 +
 「ユースケース毎の実装説明」のコード引用ミス修正 + 
 ツール名の括弧の表記の修正 + 
 図の代替テキスト追加
+
+|2023/12/22
+|Console Developer EditionとConsole Enterprise Edition対応
+
 |===
 
 == はじめに
 このチュートリアルでは、「**Cloud SDK**」を用いたサンプルアプリケーションについて解説します。 +
 このサンプルアプリケーションは、「**Cloud SDK**」の基本的な使い方を体験して頂くために用意しています。 +
-サンプルアプリケーションでは、「**Cloud SDK**」を利用してエッジAIデバイスを制御する方法と、「**Console for AITRIOS**」 (以下、「**Console**」と記載)にUploadされたエッジAIデバイスの出力を確認する方法を確認できます。
+サンプルアプリケーションでは、「**Cloud SDK**」を利用してエッジAIデバイスを制御する方法と、「**Console for AITRIOS**」 (以下、「**Console**」と記載)もしくは「Azure Blob Storage」もしくは「Local Storage」UploadされたエッジAIデバイスの出力を確認する方法を確認できます。 +
+ただし、「Local Storage」へアップロードされた推論結果を確認する場合、Codespacesは利用できません。
 
 [#_precondition]
 == 前提条件
@@ -50,28 +55,51 @@ PDFビルド環境更新 +
 取得した情報は<<#_Execute_sampleapp,「1.サンプルアプリケーション実行の準備をする」>>で利用します。 +
 必要な接続情報は下記の通りです。
 
-* クライアントアプリ詳細情報
-** 「**Portal for AITRIOS**」のクライアントアプリ一覧から参照または、必要に応じてサンプルアプリケーション向けのクライアントアプリ登録を行い、下記情報の取得を行ってください。
+* クライアントアプリケーション詳細情報
+- 「**Console Developer Edition**」を使用している場合
+** 「**Portal for AITRIOS**」のクライアントアプリケーション一覧から参照または、必要に応じてサンプルアプリケーション向けのクライアントアプリケーション登録を行い、下記情報の取得を行ってください。
 詳細は、 https://developer.aitrios.sony-semicon.com/documents/portal-user-manual[「**Portalユーザーマニュアル**」] の「SDK用のClient Secretを発行する」をお読みください。
 *** クライアントID
 *** シークレット
 +
-** link:++https://developer.aitrios.sony-semicon.com/file/download/rest-api-authentication++[こちらのドキュメント] から下記の情報を取得してください。
+** https://developer.aitrios.sony-semicon.com/file/download/rest-api-authentication[こちらのドキュメント] から下記の情報を取得してください。
 *** コンソールエンドポイント
 *** ポータル認証エンドポイント
+
+- 「**Console Enterprise Edition**」を使用している場合
+** 「**Console**」の導入担当者(Service Administrator)に問い合わせください。
+
+
+「Azure Blob Storage」を使用するには、「Azure Blob Storage」へアクセスするための接続情報が必要になります。
+詳細は、 https://learn.microsoft.com/en-us/azure/storage/common/storage-configure-connection-string#configure-a-connection-string-for-an-azure-storage-account[ 「**Configure a connection string for an Azure storage account**」 ]をお読みください。
 
 === エッジAIデバイス
 サンプルアプリケーションを正常に動作させるためには、利用するエッジAIデバイスに特定の設定が必要になります。 +
 必要な設定内容は下記の通りです。
 
 * AIモデルやアプリケーションがデプロイされていること
-* ベースAIモデルに、Object DetectionのAIモデルがデプロイされていること
+* AIモデルに、Object DetectionのAIモデルがデプロイされていること
 * 「**Console**」のUIから、利用するCommand Parameter Fileを下記の設定にしておくこと
+** 「**Console**」利用時 +
+記述しなかった場合は以下の値が自動で設定されます。 +
+UploadMethod="BlobStorage" +
+UploadMethodIR="Mqtt"
+** 「Azure Blob Storage」 +
+UploadMethod="BlobStorage" +
+UploadMethodIR="BlobStorage"
+** 「Local Storage」 +
+UploadMethod="HTTPStorage" +
+UploadMethodIR="HTTPStorage" 
 +
-
-** Mode=1(Image&Inference Result) 
-** UploadMethodIR="Mqtt" 
 ** AIモデルやアプリケーションの内容に応じて、その他のパラメータも変更する必要がある
+
+=== 外部転送設定
+* 「Azure Blob Storage」利用時 +
+「Azure Blob Storage」を使用する場合は、 https://developer.aitrios.sony-semicon.com/edge-ai-sensing/documents/external-transfer-settings-tutorial-for-azure-blob-storage[外部転送設定チュートリアル(Azure Blob Storage)]の設定を完了させてください。
+* 「Local Storage」利用時 +
+「Local Storage」を使用する場合は、 https://developer.aitrios.sony-semicon.com/edge-ai-sensing/documents/external-transfer-settings-tutorial-for-http-server[外部転送設定チュートリアル(Local HTTP Server)]の設定を完了させてください。
++
+IMPORTANT: デバイスからHTTP ServerへのアップロードはHTTP通信のため暗号化されません。
 
 == サンプルアプリケーション動作環境
 https://developer.aitrios.sony-semicon.com/downloads#sdk-getting-started[「**SDK スタートガイド**」]を参照してください。
@@ -83,8 +111,10 @@ https://developer.aitrios.sony-semicon.com/downloads#sdk-getting-started[「**SD
 * 「**Console**」に登録されたエッジAIデバイスの情報取得
 * エッジAIデバイスへの推論開始・停止指示
 +
-推論開始を行うことによって、エッジAIデバイスは推論結果・画像を「**Console**」へUploadします。
-* 「**Console**」の推論結果・画像の取得、取得結果の表示
+推論開始を行うことによって、エッジAIデバイスは推論結果・画像を「**Console**」もしくは「Azure Blob Storage」もしくは「Local Storage」へUploadします。
+* 推論結果・画像の取得、取得結果の表示
++
+「**Console**」もしくは「Azure Blob Storage」もしくは「Local Storage」にアップロードされたデータを表示します。
 
 
 == サンプルアプリケーションリポジトリ構成
@@ -104,28 +134,40 @@ aitrios-sdk-cloud-app-sample-python
 │   │   │   ├── GeneralObject.py
 │   │   │   ├── ObjectDetectionData.py
 │   │   │   └── ObjectDetectionTop.py
-│   │   ├── get_client.py  (4)
-│   │   └── get_deserialize_data.py  (5)
+│   │   ├── storage
+│   │   │   ├── __init__.py
+│   │   │   ├── get_azure_storage.py (4)
+│   │   │   ├── get_console_storage.py (5)
+│   │   │   ├── get_local_storage.py (6)
+│   │   ├── get_client.py  (7)
+│   │   └── get_deserialize_data.py  (8)
+│   │   └── get_storage_data.py  (9)
 │   ├── static
 │   │   ├── css
-│   │   │   ├── Home.module.css  (6)
-│   │   │   └── reset.css  (7)
+│   │   │   ├── Home.module.css  (10)
+│   │   │   └── reset.css  (11)
 │   │   └── js
-│   │       ├── label.json  (8)
-│   │       └── sample.js  (9)
+│   │       ├── label.json  (12)
+│   │       └── sample.js  (13)
 │   └── templates
-│       └── index.html  (10)
+│       └── index.html  (14)
 ----
 (1) src : サンプルアプリケーション格納フォルダ +
 (2) app.py : flask applicationのmain処理。各種REST APIで機能を実装 +
 (3) deserialize : Deserialize用ソースコードを格納したフォルダ +
-(4) get_client.py : 「**Console Access Library**」のclientを生成するmodule +
-(5) get_deserialize_data.py : 推論結果をDeserializeするソースコード +
-(6) Home.module.css : サンプルアプリケーションのフロントエンドスタイルシート +
-(7) reset.css : サンプルアプリケーションのフロントエンドスタイルシート +
-(8) label.json : 推論結果の表示ラベル +
-(9) sample.js : サンプルアプリケーションのフロントエンドUIで動作するJavaScriptロジック +
-(10) index.html : サンプルアプリケーションのフロントエンドUI
+(4) get_azure_storage.py : 「Azure Blob Storage」から推論結果や画像を取得するロジック +
+(5) get_console_storage.py : 「**Console**」から推論結果や画像を取得するロジック +
+(6) get_local_storage.py : 「Local Storage」から推論結果や画像を取得するロジック +
+(7) get_client.py : 「**Console Access Library**」のclientを生成 +
+「Azure Blob Storage」への接続情報取得ロジック +
+「Local Storage」のパス指定を行う +
+(8) get_deserialize_data.py : 推論結果をDeserializeするソースコード +
+(9) get_storage_data.py : 利用するStorageを判定し該当Storageのロジックを呼び出す +
+(10) Home.module.css : サンプルアプリケーションのフロントエンドスタイルシート +
+(11) reset.css : サンプルアプリケーションのフロントエンドスタイルシート +
+(12) label.json : 推論結果の表示ラベル +
+(13) sample.js : サンプルアプリケーションのフロントエンドUIで動作するJavaScriptロジック +
+(14) index.html : サンプルアプリケーションのフロントエンドUI
 
 === ソースコードの解説
 
@@ -136,22 +178,26 @@ image::diagram_python.png[alt="サンプルアプリケーションの概要",wi
 サンプルアプリケーションはFlaskフレームワークで構成しています。
 
 サンプルアプリケーションから「**Cloud SDK**」を呼び出し、「**Console**」を経由してエッジAIデバイスを制御します。 +
-エッジAIデバイスが取得したデータは「**Console**」に保存されます。 +
-サンプルアプリケーションは「**Cloud SDK**」を使用して「**Console**」からデータを取得します。
+エッジAIデバイスが取得したデータは「**Console**」もしくは「Azure Blob Storage」もしくは「Local Storage」に保存されます。 +
+サンプルアプリケーションは「**Cloud SDK**」等を使用して「**Console**」もしくは「Azure Blob Storage」もしくは「Local Storage」からデータを取得します。
 
 === サンプルアプリケーションが依存するPackage（フレームワーク）
 
 * 「**Console Access Library**」
 * https://flask.palletsprojects.com/en/2.2.x/[Flask]
 * https://google.github.io/flatbuffers/[FlatBuffers]
+* https://pypi.org/project/pytz/[pytz]
+* https://pypi.org/project/azure-storage-blob/[azure-storage-blob]
 
 [#_Execute_sampleapp]
 == サンプルアプリケーション実行方法
 <<#_precondition,前提条件>>で用意した接続情報を使用します。
 
 === 1.サンプルアプリケーション実行の準備をする
-Codespaces上から、 [src/common]配下に[console_access_settings.yaml]を作成し接続先情報を設定します。
+. Codespaces上または、リポジトリをCloneした環境上で[src/common]配下に[console_access_settings.yaml]を作成し接続先情報を設定します。
 
+- 「**Console Developer Edition**」を使用している場合
++
 |===
 |src/common/console_access_settings.yaml
 a|
@@ -164,20 +210,102 @@ console_access_settings:
   client_id: "クライアントID"
 ----
 |===
++
 * `**console_endpoint**` に、取得したコンソールエンドポイントを指定します。 +
 * `**portal_authorization_endpoint**` に、取得したポータル認証エンドポイントを指定します。 +
 * `**client_secret**` に、登録したアプリケーションの シークレット を指定します。 +
 * `**client_id**` に、登録したアプリケーションの クライアントID を指定します。 +
++
 
-IMPORTANT: クライアントID と シークレット の組み合わせは、「**Console**」へのアクセス情報となります。 + 
+IMPORTANT: クライアントIDとシークレットの取得方法詳細は、 https://developer.aitrios.sony-semicon.com/documents/portal-user-manual[「**Portalユーザーマニュアル**」] の「SDK用のClient Secretを発行する」をお読みください。 + 
+コンソールエンドポイントとポータル認証エンドポイントの取得方法詳細は、link:++https://developer.aitrios.sony-semicon.com/file/download/rest-api-authentication++[こちらのドキュメント] をお読みください。 +
+これらは「**Console**」へのアクセス情報となります。 + 
 公開したり、他者との共有をせず、取り扱いには十分注意してください。
-
++
 NOTE: Proxy環境でサンプルアプリケーション実行する場合、環境変数 `**https_proxy**` の設定をしてください。
+
+- 「**Console Enterprise Edition**」を使用している場合
++
+|===
+|src/common/console_access_settings.yaml
+a|
+[source,Yaml]
+----
+console_access_settings:
+  console_endpoint: "コンソールエンドポイント"
+  portal_authorization_endpoint: "ポータル認証エンドポイント"
+  client_secret: "シークレット"
+  client_id: "クライアントID"
+  application_id: "アプリケーションID"
+----
+|===
++
+* `**console_endpoint**` に、コンソールエンドポイントを指定します。 +
+* `**portal_authorization_endpoint**` に、ポータル認証エンドポイントを指定します。 +
+ポータル認証エンドポイントは、 `**\https://login.microsoftonline.com/{テナントID}**`  の形式で指定します。 +
+* `**client_secret**` に、登録したアプリケーションのシークレットを指定します。 +
+* `**client_id**` に、登録したアプリケーションのクライアントIDを指定します。 +
+* `**application_id**` に、登録したアプリケーションのアプリケーションIDを指定します。 +
++
+
+IMPORTANT: コンソールエンドポイントとクライアントIDとシークレットとテナントIDとアプリケーションIDの取得方法詳細は、「**Console**」の導入担当者(Service Administrator)に問い合わせください。 +
+これらは「**Console**」へのアクセス情報となります。 +
+公開したり、他者との共有をせず、取り扱いには十分注意してください。 +
++
+NOTE: Proxy環境でサンプルアプリケーション実行する場合、環境変数 `**https_proxy**` の設定をしてください。
+
+. Codespacesまたは、リポジトリをCloneした環境上で [src/common]配下に[azure_access_settings.yaml]を作成し接続先情報を設定します。 +
+本設定は、推論結果取得先が「Azure Blob Storage」の時に設定します。
+
+
++
+|===
+|src/common/azure_access_settings.yaml
+a|
+[source,Yaml]
+----
+azure_access_settings:
+  connection_string: "接続情報"
+  container_name: "コンテナ名"
+----
+|===
+
+* `**connection_string**` に、「Azure Blob Storage」の接続情報を指定します。 +
+* `**container_name**` に、「Azure Blob Storage」のコンテナ名を指定します。
++
+
+IMPORTANT: これらは「Azure Blob Storage」へのアクセス情報となります。 +
+公開したり、他者との共有をせず、取り扱いには十分注意してください。 +
+
+. Codespacesまたは、リポジトリをCloneした環境上で [src/common]配下に[get_client.py]に接続先情報を設定します。
++
+|===
+|src/common/get_client.py
+a|
+[source,Python]
+----
+class Service(Enum):
+    Console = auto()
+    Azure = auto()
+    Local = auto()
+
+
+CONNECTION_DESTINATION = Service.Console
+LOCAL_ROOT = ""
+----
+|===
++
+* `**CONNECTION_DESTINATION**` に、推論結果取得先を設定します。デフォルト値は `**Service.Console**` です。 +
+* `**LOCAL_ROOT**` に、「Local Storage」のパスを指定します。 +
+本設定は、 `**CONNECTION_DESTINATION**` に `**Service.Local**` を指定した場合に利用されます。 +
+
+NOTE: Dev Container環境を利用する場合、Local Storageをgit cloneしたフォルダ内にフォルダ作成し、 +
+`**LOCAL_ROOT**` は `**/workspace/{git cloneしたフォルダ内に作成したフォルダ}**` と設定する。
 
 image::prepare_python_ja.png[alt="サンプルアプリケーション実行の準備をする",width="700",align="center"]
 
 === 2.サンプルアプリケーションを開始する
-Codespacesのターミナルからpackageのインストールとサンプルアプリケーションの起動を行います。
+Codespacesまたは、リポジトリをCloneした環境上のターミナルからpackageのインストールとサンプルアプリケーションの起動を行います。
 
 ....
 $ pip install .
@@ -187,8 +315,9 @@ $ python src/app.py
 image::launch_app_python_ja.png[alt="サンプルアプリケーションを開始する",width="700",align="center"]
 
 === 3.推論を開始する
-Codespacesのポップアップからブラウザでサンプルアプリケーションを起動し、推論を開始します。
+ブラウザからサンプルアプリケーションにアクセスして、各種操作を行います。
 
+. ブラウザで http://localhost:3000 (Codespacesの場合は、ポート転送されたURL)を開く 
 . [**DeviceID**]のリストからDevice IDを選択する
 . [**START**]をクリックし、エッジAIデバイスの推論を開始する
 
@@ -230,12 +359,14 @@ from console_access_library.common.config import Config
 ----
 def get_console_client():
   config_obj = Config(
-        console_endpoint,
-        portal_authorization_endpoint,
-        client_id,
-        client_secret
-  )
+        read_console_access_settings_obj.console_endpoint,
+        read_console_access_settings_obj.portal_authorization_endpoint,
+        read_console_access_settings_obj.client_id,
+        read_console_access_settings_obj.client_secret,
+        read_console_access_settings_obj.application_id
+    )
   client_obj = Client(config_obj)
+  
   return client_obj
 ----
 上記のソースコードで、「**Cloud SDK**」のClientを生成します。 +
@@ -281,25 +412,42 @@ def start_upload_inference_result():
 
 === 3.「**Console**」の推論結果・画像を取得する
 
-「**Console**」から推論結果・画像を取得する為に、Clientが提供する機能を利用します。
+「**Console**」から推論結果・画像を取得するために、Clientが提供する機能を利用します。
 
 * 画像リストを取得する
 +
 [source,Python]
 ----
-def get_images():
-  client_obj = get_console_client()
-  return client_obj.insight.get_images(device_id="device_id", sub_directory_name="sub_directory_name", number_of_images=1, order_by="DESC")
+def get_image_from_console(device_id, sub_directory, order_by=None, skip=None, number_of_images=None):
+    """Get the image from Console
+    Args:
+        device_id (str): Device id
+        sub_directory (str): image file uploaded directory
+        order_by (str): Sort order by date and time the image was created. DESC, ASC
+        skip (int): Number of images to skip fetching
+        number_of_images (int): Number of images acquired
+    Returns:
+     total_image_count (int): get images number
+        images :[{
+            contents (str): base64 encode image data
+            name (str): image file name
+        }]
+    """
+    client_obj = get_client.get_console_client()
+
+    image_response = client_obj.insight.get_image_data(device_id=device_id, sub_directory_name=sub_directory, number_of_images=number_of_images, skip=skip, order_by=order_by)
+
+    return image_response
 ----
 上記のように、`**get_console_client**` を呼び出し、 `**client_obj**` を生成します。 +
-`**insight**` が提供する `**get_images**` を使用して画像リストを取得します。 +
+`**insight**` が提供する `**get_image_data**` を使用して画像リストを取得します。 +
 
 * 最新の画像を取得し、推論結果と紐付ける
 +
 [source,Python]
 ----
   client_obj = get_client.get_console_client()
-  image_response = client_obj.insight.get_images(device_id, sub_dir, number_of_images=1, order_by="DESC")
+  image_response = client_obj.insight.get_image_data(device_id="device_id", sub_directory_name="sub_directory_name", number_of_images=1, skip=0, order_by="DESC")
   latest_image_data = "data:image/jpg;base64," + image_response["images"][0]["contents"]
   latest_image_ts = image_response["images"][0]["name"].replace(".jpg", "")
 ----
@@ -313,14 +461,30 @@ def get_images():
 +
 [source,Python]
 ----
-def get_inference_results():
-  client_obj = get_console_client()
-  inference_list = client_obj.insight.get_inference_results(device_id="device_id", number_of_inference_results=1, raw=1, time=latest_image_ts)
-  return inference_list
+def get_inference_from_console(device_id, start_time=None, end_time=None, number_of_inference_result=None):
+  """Get inference_data from Console
+  Args:
+    device_id (str): Device id
+    start_time: Parameters used in filter options.
+    end_time: Parameters used in filter options.
+    number_of_inference_result: Parameters used in filter options.
+  Returns:
+    inference_response: inference result
+  """
+  client_obj = get_client.get_console_client()
+  filter = f"EXISTS(SELECT VALUE i FROM i IN c.Inferences WHERE i.T >= \'{start_time}\' AND i.T <= \'{end_time}\')"
+  raw = 1
+  time = None
+  inference_response = client_obj.insight.get_inference_results(device_id, filter, number_of_inference_results=number_of_inference_result, raw=raw, time=time)
+  inferences_response = []
+  for inference in inference_response:
+    inferences_response.append(inference["inference_result"]["Inferences"][0]["O"])
+  return inferences_response
+
 ----
 上記のように、`**get_console_client**` を呼び出し、 `**client_obj**` を生成します。 +
 `**insight**` が提供する `**get_inference_results**` を使用して推論結果のリストを取得します。 +
-`**number_of_inference_results**` で、取得する推論結果の数を指定します。 +
+`**filter**` は検索フィルタを指定する引数です。 +
 `**raw**` は格納された推論結果にアクセスするための引数です。 +
 `**time**` は、取得する推論結果のタイムスタンプを指定します。
 
@@ -333,8 +497,264 @@ deserialize_data = get_deserialize_data.get_deserialize_data(latest_inference_da
 上記のソースコードでは、「**Console**」から取得した推論結果を参照可能な形式へ変換する処理を行っています。 +
 この変換処理の詳細について、 https://github.com/SonySemiconductorSolutions/aitrios-sdk-deserialization-sample[「Cloud SDK Deserialize サンプル」] を参照してください。
 
+=== 4.「Azure Blob Storage」の推論結果・画像を取得する
+「Azure Blob Storage」から推論結果・画像を取得するために、storageディレクトリ配下のget_azure_storage.pyを利用します。
 
-=== 4.エッジAIデバイスへの推論停止を指示する
+* 画像リストを取得する
++
+[source,Python]
+----
+def get_image_from_azure(retry_count, device_id, sub_directory, order_by="ASC", skip=0, number_of_images=50):
+  """Get the image from Azure
+    Args:
+      retry_count (int): Number of retries on failure,
+      device_id (str): Device id
+      sub_directory (str): image file uploaded directory
+      order_by (str): Sort order by date and time the image was created. DESC, ASC
+      skip (int): Number of images to skip fetching
+      number_of_images (int): Number of images acquired
+    Returns:
+      total_image_count (int): get images number
+      images :[{
+        contents (str): base64 encode image data
+        name (str): image file name
+      }]
+  """
+  image_response = {
+    "total_image_count": 0,
+    "images": []
+  }
+  access_info = get_client.get_azure_access_settings()
+  blob_service_client = BlobServiceClient.from_connection_string(
+    access_info["connection_string"])
+  container_client = blob_service_client.get_container_client(
+    access_info["container_name"])
+
+  storage_path = f"{device_id}/image/{sub_directory}"
+  blobs_list = container_client.list_blobs(storage_path)
+  blob_name_array = []
+  for blob in blobs_list:
+    blob_name_array.append(blob.name)
+  if order_by == "DESC":
+    blob_name_array.sort(reverse=True)
+
+  images = []
+
+  for i in range(skip, skip + number_of_images):
+    if i == number_of_images:
+      break
+    if i > len(blob_name_array):
+      break
+    blob_client = container_client.get_blob_client(blob_name_array[i])
+    image = blob_client.download_blob()
+    image_text = image.read()
+    b64encoded = base64.b64encode(image_text)
+
+    file_name = blob_name_array[i].rsplit("/", 1)[1]
+    images.append({
+      "name": file_name,
+      "contents": b64encoded.decode()
+    })
+
+  if len(blob_name_array) != 0:
+    image_response["total_image_count"] = len(blob_name_array)
+    image_response["images"] = images
+    return image_response
+
+  if retry_count > 0:
+    time.sleep(1)
+    return get_image_from_azure(retry_count - 1,
+                                device_id,
+                                sub_directory,
+                                order_by,
+                                skip,
+                                number_of_images)
+
+  return image_response
+
+----
+`**azure.storage.blob**` が提供する `**list_blobs**` を使用して画像ファイル名のリストを取得します。 +
+`**azure.storage.blob**` が提供する `**get_blob_client**` 、 `**download_blob**` 、 `**read**` を利用して画像データを取得します。 +
+画像ファイル名とbase64を作成し、`**total_image_count**` と合わせて返却します。
+
+* 最新の画像に紐づく推論結果を取得する
++
+[source,Python]
+----
+def get_inference_from_azure(retry_count, 
+                            device_id, sub_directory,
+                            start_inference_time=None,
+                            end_inference_time=None,
+                            number_of_inference_result=None):
+  """Get inference_data from Azure
+    Args:
+      retry_count (int): Number of retries on failure
+      device_id (str): Device id
+      sub_directory (str): image file uploaded directory
+      start_inference_time (str): start range.
+      end_inference_time (str): end range.
+      number_of_inference_result (int): Number of cases to get.
+    Returns:
+      inferences (arr): inference results
+  """
+  inferences = []
+  access_info = get_client.get_azure_access_settings()
+  blob_service_client = BlobServiceClient.from_connection_string(access_info["connection_string"])
+  container_client = blob_service_client.get_container_client(access_info["container_name"])
+  storage_path = os.path.join(device_id, "metadata", sub_directory)
+  blobs = []
+
+  for blob in container_client.list_blobs(storage_path):
+    timestamp = blob.name.split("/")[3].replace(".txt", "")
+    if (start_inference_time is None or timestamp >= start_inference_time) and\
+        (end_inference_time is None or timestamp < end_inference_time):
+        blobs.append(blob.name)
+    if end_inference_time is not None and timestamp > end_inference_time:
+      break
+
+    if len(blobs) == number_of_inference_result:
+      break
+
+  if len(blobs) != 0:
+    for blob_name in blobs:
+      blob_client = container_client.get_blob_client(blob_name)
+      inference = blob_client.download_blob(encoding="UTF-8")
+      inference_text = inference.readall()
+      inference_obj = json.loads(inference_text)
+      inferences.append(inference_obj["Inferences"][0]["O"])
+    return inferences
+
+  if retry_count > 0:
+    time.sleep(1)
+    return get_inference_from_azure(retry_count - 1,
+                                    device_id,
+                                    sub_directory,
+                                    start_inference_time,
+                                    end_inference_time,
+                                    number_of_inference_result)
+  return inferences
+
+----
+`**azure.storage.blob**` が提供する `**list_blobs**` を使用して推論結果ファイル名のリストを取得します。 +
+取得した推論結果ファイル名のタイムスタンプが指定範囲内か確認します。 +
+`**azure.storage.blob**` が提供する `**get_blob_client**` 、 `**download_blob**` 、 `**readall**` を利用して推論結果データを取得します。
+`**start_inference_time**` は検索開始位置を表すタイムスタンプです。 +
+`**end_inference_time**` は検索終了位置を表すタイムスタンプです。 +
+`**number_of_inference_result**` は取得する推論結果の数です。 +
+
+=== 5.「Local Storage」の推論結果・画像を取得する
+「Local Storage」から推論結果・画像を取得するために、storageディレクトリ配下のget_local_storage.pyを利用します。
+
+* 画像リストを取得する
++
+[source,Python]
+----
+def get_image_from_local(device_id, sub_directory, order_by="ASC", skip=0, number_of_images=50):
+  """Get the image from Local
+  Args:
+    device_id (str): Device id
+    sub_directory (str): image file uploaded directory
+    order_by (str): Sort order by date and time the image was created. DESC, ASC
+    skip (int): Number of images to skip fetching
+    number_of_images (int): Number of images acquired
+  Returns:
+    total_image_count (int): get images number
+      images :[{
+        contents (str): base64 encode image data
+        name (str): image file name
+      }]
+  """
+  storage_path = os.path.join(get_client.LOCAL_ROOT, device_id, "image", sub_directory)
+  order_by = order_by.upper() if order_by else "ASC"
+  images = []
+  if not os.path.exists(storage_path):
+    raise FileNotFoundError("Only absolute paths are supported.")
+
+  files = os.listdir(storage_path)
+  image_files = []
+  for file in files:
+    if file.lower().endswith(".jpg"):
+      image_files.append(file)
+
+  if order_by == "DESC":
+    image_files.reverse()
+
+  for i, image_file in enumerate(image_files[skip:]):
+    if i == number_of_images:
+      break
+
+    file_path = os.path.join(storage_path, image_file)
+    symbolic_link = Path(file_path).is_symlink()
+    if symbolic_link is True:
+      raise IsADirectoryError("Can't open symbolic link file.")
+    with open(file_path, "rb") as file:
+      data = file.read()
+      base64_image = base64.b64encode(data).decode("utf-8")
+      images.append({
+        "name": image_file,
+        "contents": base64_image
+      })
+
+  response = {
+    "total_image_count": len(image_files),
+    "images": images
+  }
+
+  return response
+
+----
+`**os**` が提供する `**listdir**` を使用して画像ファイル名のリストを取得します。 +
+`**open**` を利用して画像データを取得します。 +
+画像ファイル名とbase64を作成し、`**total_image_count**` と合わせて返却します。
+
+* 最新の画像に紐づく推論結果を取得する
++
+[source,Python]
+----
+def get_inference_from_local(device_id, sub_directory, start_inference_time=None, end_inference_time=None, number_of_inference_result=20):
+  """Get inference_data from Local
+  Args:
+      device_id (str): Device id
+      sub_directory (str): image file uploaded directory
+      start_inference_time (str): When this value is specified, extract the inference result metadata within the following range.
+      end_inference_time (str): When this value is specified, extract the inference result metadata within the following range.
+      number_of_inference_result (int): Number of cases to get.
+  Returns:
+      inferences (arr): inference results
+  """
+  storage_path = os.path.join(get_client.LOCAL_ROOT, device_id, "meta", sub_directory)
+  inference_results = []
+  if not os.path.exists(storage_path):
+    raise FileNotFoundError("Data does not exist.")
+
+  inference_files = os.listdir(storage_path)
+  for file_name in inference_files:
+    timestamp = os.path.splitext(file_name)[0]
+    if (start_inference_time is None or timestamp >= start_inference_time) and\
+      (end_inference_time is None or timestamp < end_inference_time):
+      inference_data_path = os.path.join(storage_path, file_name)
+      symbolic_link = Path(inference_data_path).is_symlink()
+      if symbolic_link is True:
+        raise IsADirectoryError("Can't open symbolic link file.")
+      with open(inference_data_path, "r") as file:
+        inference_data = json.load(file)
+        inference_result = inference_data["Inferences"][0]["O"]
+        inference_results.append(inference_result)
+    elif end_inference_time is not None and timestamp > end_inference_time:
+      break
+    if len(inference_results) == number_of_inference_result:
+      break
+
+  return inference_results
+----
+`**os**` が提供する `**listdir**` を使用して推論結果ファイル名のリストを取得します。 +
+取得した推論結果ファイル名のタイムスタンプが指定範囲内か確認します。 +
+`**open**` を利用して推論結果データを取得します。 +
+`**start_inference_time**` は検索開始位置を表すタイムスタンプです。 +
+`**end_inference_time**` は検索終了位置を表すタイムスタンプです。 +
+`**number_of_inference_result**` は取得する推論結果の数です。 +
+
+=== 6.エッジAIデバイスへの推論停止を指示する
 
 * 推論停止
 +
