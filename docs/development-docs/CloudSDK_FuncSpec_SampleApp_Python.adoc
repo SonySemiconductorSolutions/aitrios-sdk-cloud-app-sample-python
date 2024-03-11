@@ -30,6 +30,9 @@ Updated the PDF build environment
 |Fixed parenthesis notation for tool names + 
 Added alternate text to images
 
+|2023/12/22
+|Console Developer Edition support
+
 |===
 
 == Introduction
@@ -49,12 +52,22 @@ Added alternate text to images
 |A cloud service that provides various functions (Deployment, Retraining, Edge AI Device Management etc.) to efficiently implement solutions from edge to cloud
 
 |Inference result
-|AI-processed metadata among outputs from "**Vision and Sensing Applications**"
+|AI-processed metadata among outputs from "**Edge Applications**"
 
 |Image
-|Image data captured by edge AI devices among outputs from "**Vision and Sensing Applications**"
+|Image data captured by edge AI devices among outputs from "**Edge Applications**"
+
+|Azure Blob Storage
+|Object storage provided by Microsoft Corporation
+
+|Local Storage
+|Device storage on which the user runs the sample application
+
+|Local HTTP Server
+|Server launched when saving the data output by EdgeAI device to Local Storage
 
 |===
+NOTE: "**Edge Applications**" and "**Vision and Sensing Application**" mean the same thing.
 
 == Reference materials
 * "**Cloud SDK**" for Python used in sample applications
@@ -64,37 +77,64 @@ Added alternate text to images
 == Expected use case
 * Provide ways to use and take advantage of the "**Cloud SDK**" for Python.
 ** Users can see how applications using the "**Cloud SDK**" work by launching applications in the repository.
+** By launching the application from the repository, user can verify the data that was uploaded to either of "**Console**", Azure Blob Storage or Local Storage.
 ** Users can see how to use the "**Cloud SDK**" by reviewing the source code.
 
 == Functional overview/Algorithm
 [NOTE]
 === Functional overview
 * Users can see the latest image and inference results on the screen.
-** The base AI model only supports Object Detection.
+** The AI model only supports Object Detection.
 * The Start/Stop button will appear by selecting the DeviceID.
 * By pressing the START button, the latest image/inference results is gotten and displayed on the screen.
 * By pressing the STOP button, getting the latest image/inference result is stopped.
 
 
 === Algorithm
+. Add the following to "CONNECTION_DESTINATION" in src/common/get_client.py
+..  Below setting values can be set in CONNECTION_DESTINATION.
+** Service.Console
+** Service.Azure
+** Service.Local
 . Launch the screen.
 .. Call the getDeviceData.
 .. Display the returned data in the DeviceID selection field.
 .  DeviceID is entered, the START button is pressed.
 .. Call the getCommandParameterFile to check that the settings are as follows. (Display a message if there is an error.)
 ** Mode=1(Image&Inference Result)
-** UploadMethodIR="Mqtt"
 .. Call the startUpload to start upload of inference results and images.
 .. Call getImageAndInference periodically to get inference results and images.
+**  The extraction layer that determines the Clous service or SDK to be used determines the location for fetching the data based on the connection information available in src/common or the CONNECTION_DESTINATION settings of src/common/get_client.py
+... When "Service.Console" is specified in CONNECTION_DESTINATION, fetch the data from the "**Console**".
+... When "Service.Azure" is specified in CONNECTION_DESTINATION, fetch the data from Azure Blob Storage.
+... When "Service.Local" is specified in CONNECTION_DESTINATION, fetch the data from Local Storage.
+** In case of any error in specifying the connection information or connection destination, it throws an error while fetching the data.
 .. Display the gotten data on the screen.
 . Press the STOP button.
 .. Call the stopUpload.
+.. When connection destination is local, change the file structure of the data saved by Local HTTP Server by using the deviceId and subDirectory. +
+For the changed file structure, refer the limitations section.
 
 === Under what condition
 * Have access to the "**Console**".
+* When using either the "**Console**" or Cloud service, prepare the respective connection information.
+** When using "**Console**", console_access_settings.yaml is available in src/common and the required connection information should be set.
+** When using cloud service other than "**Console**", [Service name]_access_settings.yaml is available in src/common and the required connection information should be set.
+*** Example
+
+    azure_access_settings.yaml
+
+** When using Local storage, the root of the browsing directory should be mentioned in the "LOCAL_ROOT" of src/common/get_client.py
+
+*** Example
+
+    LOCAL_ROOT = 'C:\\any_place\\...'
+
+*** LOCAL_ROOT can only be specified as an absolute path.
+
 * A Python development environment has been built.
 ** A Codespaces environment is also available.
-** Python version is 3.10.
+** Python version is 3.11.
 * An edge AI device is connected to the "**Console**" and ready to accept operations from the "**Console**".
 
 === API
@@ -118,20 +158,33 @@ image::./ScreenSpec_SampleApp.png[alt="Screen specifications", width="700"]
 ==== When to use Codespaces
 . Developers open the repository of the sample application from any browser and launch Codespaces.
 . Build containers in the cloud with reference to configuration files that exist in repositories.
-. Use the built container in the browser or from VS Code.
+. Use the built container in the browser or from VS Code. 
+. In src/common, place the setting file containing the connection information.
+. Mention the connection destination information in the "CONNECTION_DESTINATION" of src/common/get_client.py.
+* Either of console/azure/local can be set in "CONNECTION_DESTINATION".
+.. When "Service.Console" is set, it fetches data from the "**Console**".
+.. When set to "Service.Azure", it fetches data from Azure Blob Storage.
+.. When set to "Service.Local", it fetches the data from the path set in "LOCAL_ROOT" of src/common/get_client.py
 . Launch the sample application.
 
 ==== When not to use Codespaces
 . Developers open the repository of the sample application from any browser and clone the repository.
 . Install the necessary packages for the cloned sample application.
+. In src/common, place the setting file containing the connection information.
+. Mention the connection destination information in the "CONNECTION_DESTINATION" of src/common/get_client.py
+* Either of console/azure/local can be set in "CONNECTION_DESTINATION".
+.. When "Service.Console" is set, it fetches data from the "**Console**".
+.. When set to "Service.Azure", it fetches data from Azure Blob Storage.
+.. When set to "Service.Local", it fetches the data from the path set in "LOCAL_ROOT" of src/common/get_client.py
 . Launch the sample application.
 
 ==== After starting the sample application
 . Select the [**DeviceID**].
 . By pressing the [**START**] button, the latest image/inference results is gotten and displayed on the screen.
+** In case of any error in specifying the connection information or connection destination, it throws an error while fetching the data.
 . By pressing the [**STOP**] button, getting the latest image/inference result is stopped.
 
-== API parameters in each block
+== API parameters
 === GET
 
 * {base_url}/getDeviceData
@@ -206,10 +259,12 @@ image::./ScreenSpec_SampleApp.png[alt="Screen specifications", width="700"]
 
 * {base_url}/stopUpload/device_id
 ** Request to stop uploading inference results and images for the specified DeviceID.
+** When connection destination is local, revise the Local Storage file structure.
 |===
 |Body Parameter’s name|Meaning|Range of parameter
 
 |device_id |DeviceID to stop uploading images and inference results |Not specified
+|subDirectory |Path storing the image or inference results |Not specified
 
 |===
 |===
@@ -225,13 +280,52 @@ image::./ScreenSpec_SampleApp.png[alt="Screen specifications", width="700"]
 == Assumption/Restriction
 * From the "**Console**" UI, set the Command Parameter File to the following setting:
 ** Mode=1(Image&Inference Result)
-** UploadMethodIR="Mqtt"
+** FileFormat="JPG"
+** NumberOfInferencesPerMessage=1
 ** Other parameters need to be changed depending on the AI model and application content
-* Object detection is deployed as the base AI model.
-* If you select an edge AI device that does not have an AI model or application deployed at runtime, it will not work properly.
+* Object detection is deployed as the AI model.
+* The file structure when Local HTTP Server saves data in Local Storage is as follows.
+
+    image
+    meta
+    Device ID
+        ∟image
+            ∟yyyyMMddHHmmssfff (1)
+                ∟yyyyMMddHHmmssfff.jpg (2)
+                ∟yyyyMMddHHmmssfff.jpg (2)
+        ∟meta
+            ∟yyyyMMddHHmmssfff (1)
+                ∟yyyyMMddHHmmssfff.txt (3)
+                ∟yyyyMMddHHmmssfff.txt (3)
+    
+    (1) Inference start time
+    (2) Pre-inference image file (file name is the pre-inference image output time)
+    (3) Inference results file (file name is the inference results output time)
+
+* Consider data file structure when using Azure Blob Storage.
+
+    Device ID
+        ∟image
+            ∟yyyyMMddHHmmssfff (1)
+                ∟yyyyMMddHHmmssfff.jpg (2)
+                ∟yyyyMMddHHmmssfff.jpg (2)
+        ∟metadata
+            ∟yyyyMMddHHmmssfff (1)
+                ∟yyyyMMddHHmmssfff.txt (3)
+                ∟yyyyMMddHHmmssfff.txt (3)
+
+    (1) Inference start time
+    (2) Pre-inference image file(file name is the pre-inference image output time)
+    (3) Inference results file (file name is the inference results output time)
+
+* In case of an error when clicking [Stop] button while using Local Storage, do not execute the process of transferring images and inference results. +
+Also on clicking [Start] button in this state, the data uploaded just before and the data to be fetched next are mixed up, the following support is required.
+** Either transfer or delete the images, inference results available in LOCAL_ROOT.
 
 == Remarks
 * Image uploads from edge AI devices to the cloud can experience delays of up to several minutes.
+* Once the setting API of the command parameter File is created, it can be set via "**Cloud SDK**".
+* Fetch the access token by using the "Cloud SDK" feature.
 
 == Unconfirmed items
 * None

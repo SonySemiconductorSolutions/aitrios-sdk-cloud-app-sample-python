@@ -18,7 +18,7 @@ import os
 from setuptools import find_packages, setup
 
 PACKAGE_NAME = "flask_sample_app"
-PACKAGE_VERSION = "1.0.0"
+PACKAGE_VERSION = "1.1.0"
 PACKAGE_DESCRIPTION = "flask_sample_app"
 AUTHOR_NAME = "Sony Semiconductor Solutions Corporation"
 AUTHOR_EMAIL = ""
@@ -32,20 +32,25 @@ setup(
     author_email=AUTHOR_EMAIL,
     classifiers=[
         "License :: Confidential :: Sony Semiconductor Solutions Corporation",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
     ],
     packages=find_packages(),
-    python_requires=">=3.7, <4",
+    python_requires=">=3.8, <4",
     install_requires=[
         'flask',
+        'pytz==2023.3.post1',
+        'azure-storage-blob==12.19.0',
         'flatbuffers==23.1.21',
-        f'console-access-library @ file://{root_dir}/.devcontainer/Dependencies/aitrios-sdk-console-access-lib-python/src',
+        "nassl>=4.0",
+        "cryptography>=36.0",
+        "validators>=0.18",
+        f'console-access-library @ file://{root_dir}/.devcontainer/'
+        'Dependencies/cal/src',
         f'aitrios-console-rest-client-sdk-primitive @ file://{root_dir}/.devcontainer/'
-        'Dependencies/aitrios-sdk-console-access-lib-python/lib/python-client'
-        ],
+        'Dependencies/cal/lib/python-client'
+    ],
     extras_require={
         "develop": [
             'pytest',
