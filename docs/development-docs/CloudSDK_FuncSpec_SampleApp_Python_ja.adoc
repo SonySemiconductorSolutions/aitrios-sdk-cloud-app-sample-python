@@ -32,6 +32,10 @@ PDFビルド環境更新
 |2023/12/22
 |Console Developer Edition対応
 
+|2024/3/25
+|AWS対応
+|Cloud SDK team
+
 |===
 
 == はじめに
@@ -48,25 +52,27 @@ PDFビルド環境更新
 |「**Console**」へのアクセス方法を提供するSDK
 
 |「**Console**」
-|エッジからクラウドを含めたソリューションを効率的に導入するための各種機能（デプロイメント機能、リトレーニング機能、エッジAIデバイスマネジメント機能など）を提供するクラウドサービス
+|エッジからクラウドを含めたソリューションを効率的に導入するための各種機能（デプロイメント機能、リトレーニング機能、エッジデバイスマネジメント機能など）を提供するクラウドサービス
 
 |推論結果
 |「**Edge Application**」からの出力のうち、AI処理されたメタデータ
 
 |画像
-|「**Edge Application**」からの出力のうち、エッジAIデバイスがとらえているイメージデータ
+|「**Edge Application**」からの出力のうち、エッジデバイスがとらえているイメージデータ
 
 |Azure Blob Storage
 |Microsoft社が提供するオブジェクトストレージ
+
+|Amazon S3
+|Amazonが提供するオンラインストレージ
 
 |Local Storage
 |ユーザーがサンプルアプリケーションを動作させるデバイスのストレージ
 
 |Local HTTP Server
-|エッジAIデバイスが出力するデータをLocal Storageに保存する際に起動するサーバー
+|エッジデバイスが出力するデータをLocal Storageに保存する際に起動するサーバー
 
 |===
-NOTE: 「**Edge Application**」と「**Vision and Sensing Application**」は同義です。 
 
 == 参照資料
 * サンプルアプリケーションで利用するPython版「**Cloud SDK**」
@@ -76,7 +82,7 @@ NOTE: 「**Edge Application**」と「**Vision and Sensing Application**」は�
 == 想定ユースケース
 * Python版「**Cloud SDK**」の利用方法や活用方法を提供できる。
 ** ユーザーはリポジトリ内のアプリケーションを起動することで、「**Cloud SDK**」を利用したアプリケーションの動作を確認できる。
-** ユーザーはリポジトリ内のアプリケーションを起動することで、「**Console**」、Azure Blob Storage、Local Storageのいずれかにアップロードされたデータを確認できる。
+** ユーザーはリポジトリ内のアプリケーションを起動することで、「**Console**」、Azure Blob Storage、Amazon S3、Local Storageのいずれかにアップロードされたデータを確認できる。
 ** ユーザーはソースコードを確認することで、「**Cloud SDK**」の利用方法を確認できる。
 
 == 機能概要、アルゴリズム
@@ -94,6 +100,7 @@ NOTE: 「**Edge Application**」と「**Vision and Sensing Application**」は�
 * CONNECTION_DESTINATIONは下記の値を設定可能。
 ** Service.Console
 ** Service.Azure
+** Service.AWS
 ** Service.Local
 . 画面を起動する。
 .. getDeviceDataが呼び出される。
@@ -106,6 +113,7 @@ NOTE: 「**Edge Application**」と「**Vision and Sensing Application**」は�
 * データの取得先は、利用するクラウドサービスやSDKを判断する抽象化層がsrc/common下の接続情報やsrc/common/get_client.pyのCONNECTION_DESTINATIONの設定値を元に判別する。
 ... CONNECTION_DESTINATIONに「Service.Console」を指定した場合は、「**Console**」からデータを取得する。
 ... CONNECTION_DESTINATIONに「Service.Azure」を指定した場合は、Azure Blob Storageからデータを取得する。
+... CONNECTION_DESTINATIONに「Service.AWS」を指定した場合は、Amazon S3からデータを取得する。
 ... CONNECTION_DESTINATIONに「Service.Local」を指定した場合は、Local Storageからデータを取得する。
 
 * 接続情報や接続先指定に誤りがある場合は、データ取得時にエラーが表示される。
@@ -120,7 +128,7 @@ NOTE: 「**Edge Application**」と「**Vision and Sensing Application**」は�
 * 「**Console**」へのアクセスができること。
 * 「**Console**」やクラウドサービスを利用する場合は、それぞれの接続情報が用意されていること。
 ** 「**Console**」を利用する場合はsrc/commonに console_access_settings.yaml があり、必要な接続情報が設定されていること。
-** 「**Console**」以外のクラウドサービスを利用する場合はsrc/commonに [サービス名]_access_settings.yaml があり、必要な接続情報が設定されていること。
+** 「**Console**」以外のクラウドサービスを利用する場合はsrc/commonに [サービス名小文字]_access_settings.yaml があり、必要な接続情報が設定されていること。
 *** 例
 
    azure_access_settings.yaml
@@ -134,7 +142,7 @@ NOTE: 「**Edge Application**」と「**Vision and Sensing Application**」は�
 * Pythonの開発環境が構築されていること。
 ** Codespaces環境も利用可能。
 ** Pythonのversionは3.11
-* エッジAIデバイスが「**Console**」に接続されており、「**Console**」からの操作を受けつける状態である。
+* エッジデバイスが「**Console**」に接続されており、「**Console**」からの操作を受けつける状態である。
 
 === API
 * GET
@@ -150,7 +158,7 @@ NOTE: 「**Edge Application**」と「**Vision and Sensing Application**」は�
 
 == 操作性仕様、画面仕様
 === 画面仕様
-image::./ScreenSpec_SampleApp_ja.png[alt="画面仕様", width="700"]
+image::./images/ScreenSpec_SampleApp_ja.png[alt="画面仕様", width="700"]
 
 === 操作性仕様
 ==== サンプルアプリケーション起動までの操作
@@ -160,10 +168,16 @@ image::./ScreenSpec_SampleApp_ja.png[alt="画面仕様", width="700"]
 . 構築されたコンテナをブラウザ上またはVS Codeから利用する。
 . src/commonに接続情報が記載されている設定ファイルを配置する。
 . src/common/get_client.pyの「CONNECTION_DESTINATION」に接続先を記載する。
-** 「CONNECTION_DESTINATION」にはconsole/azure/localが設定可能。
-.. 「Service.Console」を設定した場合は「**Console**」からデータを取得する。
-.. 「Service.Azure」を設定した場合はAzure Blob Storageからデータを取得する。
-.. 「Service.Local」を設定した場合はsrc/common/get_client.pyの「LOCAL_ROOT」に設定されたパスからデータを取得する。
+** CONNECTION_DESTINATIONには下記の値を設定可能。
++
+|===
+|設定値|データ取得先
+
+|Service.Console|「**Console**」
+|Service.Azure|Azure Blob Storage
+|Service.AWS|Amazon S3
+|Service.Local|src/common/get_client.pyの「LOCAL_ROOT」に設定されたパス
+|===
 . サンプルアプリケーションを起動する。
 
 ==== Codespacesを利用しない場合
@@ -171,10 +185,16 @@ image::./ScreenSpec_SampleApp_ja.png[alt="画面仕様", width="700"]
 . Cloneしたサンプルアプリケーションに必要なパッケージをインストールする。
 . src/commonに接続情報が記載されている設定ファイルを配置する。
 . src/common/get_client.pyの「CONNECTION_DESTINATION」に接続先を記載する。
-** 「CONNECTION_DESTINATION」にはconsole/azure/localが設定可能。
-.. 「Service.Console」を設定した場合は「**Console**」からデータを取得する。
-.. 「Service.Azure」を設定した場合はAzure Blob Storageからデータを取得する。
-.. 「Service.Local」を設定した場合はsrc/common/get_client.pyの「LOCAL_ROOT」に設定されたパスからデータを取得する。
+** CONNECTION_DESTINATIONには下記の値を設定可能。
++
+|===
+|設定値|データ取得先
+
+|Service.Console|「**Console**」
+|Service.Azure|Azure Blob Storage
+|Service.AWS|Amazon S3
+|Service.Local|src/common/get_client.pyの「LOCAL_ROOT」に設定されたパス
+|===
 . サンプルアプリケーションを起動する。
 
 ==== サンプルアプリケーション起動後の操作
@@ -224,7 +244,7 @@ image::./ScreenSpec_SampleApp_ja.png[alt="画面仕様", width="700"]
 |===
 
 * {base_url}/getImageAndInference/device_id/sub_directory_name
-** 指定したエッジAIデバイスの推論結果と画像を取得し返却する。
+** 指定したエッジデバイスの推論結果と画像を取得し返却する。
 |===
 |Query Parameter’s name|Meaning|Range of parameter
 
@@ -268,7 +288,7 @@ image::./ScreenSpec_SampleApp_ja.png[alt="画面仕様", width="700"]
 
 * {base_url}/stopUpload/device_id
 ** 指定したDeviceIDに対して推論結果と画像のUpload停止を要求する。
-** 接続先がlocalの場合はLocal Storageのファイル構成を修正する。
+** 接続先がLocalの場合はLocal Storageのファイル構成を修正する。
 |===
 |Body Parameter’s name|Meaning|Range of parameter
 
@@ -292,7 +312,7 @@ image::./ScreenSpec_SampleApp_ja.png[alt="画面仕様", width="700"]
 * なし
 
 == 制限事項
-* 「**Console**」のUIから、Command Parameter Fileを下記の設定にする。
+* 「**Console**」のUIから、Command Parameter Fileを下記の設定にする。(2023/12/04時点)
 ** Mode=1(Image&Inference Result)
 ** FileFormat="JPG"
 ** NumberOfInferencesPerMessage=1
@@ -316,7 +336,7 @@ image::./ScreenSpec_SampleApp_ja.png[alt="画面仕様", width="700"]
    (2) 推論元画像ファイル(ファイル名は、推論元画像出力時刻)
    (3) 推論結果ファイル(ファイル名は、推論結果出力時刻)
 
-* Azure Blob Storage利用時のデータファイル構成は下記とする。
+* Azure Blob Storage/Amazon S3利用時のデータファイル構成は下記とする。
 
    Device ID
       ∟image
@@ -338,7 +358,7 @@ image::./ScreenSpec_SampleApp_ja.png[alt="画面仕様", width="700"]
 ** LOCAL_ROOTにある画像・推論結果の移動または削除
 
 == その他特記事項
-* エッジAIデバイスからクラウドへの画像アップロード時に、最大数分程度の遅延が発生することがある。
+* エッジデバイスからクラウドへの画像アップロード時に、最大数分程度の遅延が発生することがある。
 * Command Parameter Fileの設定APIが作成され次第、「**Cloud SDK**」経由で設定できるようになる。
 * アクセストークンの取得は、「**Cloud SDK**」の機能を使用して行う。
 

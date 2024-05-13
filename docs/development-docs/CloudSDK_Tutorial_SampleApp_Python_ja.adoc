@@ -20,7 +20,7 @@
 |2022/12/12
 |初版作成
 
-|2023/1/30
+|2023/01/30
 |誤記修正 + 
 表現統一 + 
 記法修正 + 
@@ -30,23 +30,27 @@ PDFビルド環境更新 +
 「サンプルアプリケーション実行の準備をする」の接続先情報設定方法変更 +
 ユースケース毎の実装説明の「**Cloud SDK**」の0.2.0対応
 
-|2023/5/26
+|2023/05/26
 |FlatBuffers version upにともなう「サンプルアプリケーションリポジトリ構成」「参考資料」修正 +
 「サンプルアプリケーションが依存するPackage（フレームワーク）」にFlatBuffers不足していたため追加 +
 「ユースケース毎の実装説明」のコード引用ミス修正 + 
 ツール名の括弧の表記の修正 + 
 図の代替テキスト追加
 
-|2023/12/22
+|2023/09/26
 |Console Developer EditionとConsole Enterprise Edition対応
+
+|2023/12/05
+|AWS対応
 
 |===
 
 == はじめに
 このチュートリアルでは、「**Cloud SDK**」を用いたサンプルアプリケーションについて解説します。 +
 このサンプルアプリケーションは、「**Cloud SDK**」の基本的な使い方を体験して頂くために用意しています。 +
-サンプルアプリケーションでは、「**Cloud SDK**」を利用してエッジAIデバイスを制御する方法と、「**Console for AITRIOS**」 (以下、「**Console**」と記載)もしくは「Azure Blob Storage」もしくは「Local Storage」UploadされたエッジAIデバイスの出力を確認する方法を確認できます。 +
-ただし、「Local Storage」へアップロードされた推論結果を確認する場合、Codespacesは利用できません。
+
+サンプルアプリケーションでは、「**Cloud SDK**」を利用してエッジデバイスを制御する方法と、「**Console for AITRIOS**」 (以下、「**Console**」と記載)もしくはAzure Blob StorageもしくはAmazon S3もしくはLocal StorageへUploadされたエッジデバイスの出力を確認する方法を確認できます。 +
+ただし、Local Storageへアップロードされた推論結果を確認する場合、Codespacesは利用できません。
 
 [#_precondition]
 == 前提条件
@@ -58,11 +62,12 @@ PDFビルド環境更新 +
 * クライアントアプリケーション詳細情報
 - 「**Console Developer Edition**」を使用している場合
 ** 「**Portal for AITRIOS**」のクライアントアプリケーション一覧から参照または、必要に応じてサンプルアプリケーション向けのクライアントアプリケーション登録を行い、下記情報の取得を行ってください。
-詳細は、 https://developer.aitrios.sony-semicon.com/documents/portal-user-manual[「**Portalユーザーマニュアル**」] の「SDK用のClient Secretを発行する」をお読みください。
+詳細は、 https://developer.aitrios.sony-semicon.com/edge-ai-sensing/documents/portal-user-manual/[「**Portalユーザーマニュアル**」] の「SDK用のClient Secretを発行する」をお読みください。
 *** クライアントID
 *** シークレット
 +
-** https://developer.aitrios.sony-semicon.com/file/download/rest-api-authentication[こちらのドキュメント] から下記の情報を取得してください。
+
+** https://developer.aitrios.sony-semicon.com/file/download/edge-ai-sensing-portal-console-end-point-info/[「**PortalおよびConsoleのエンドポイント情報**」​] から下記の情報を取得してください。
 *** コンソールエンドポイント
 *** ポータル認証エンドポイント
 
@@ -70,11 +75,25 @@ PDFビルド環境更新 +
 ** 「**Console**」の導入担当者(Service Administrator)に問い合わせください。
 
 
-「Azure Blob Storage」を使用するには、「Azure Blob Storage」へアクセスするための接続情報が必要になります。
+- Azure Blob Storageを使用するには、Azure Blob Storageへアクセスするための接続情報が必要になります。
 詳細は、 https://learn.microsoft.com/en-us/azure/storage/common/storage-configure-connection-string#configure-a-connection-string-for-an-azure-storage-account[ 「**Configure a connection string for an Azure storage account**」 ]をお読みください。
 
-=== エッジAIデバイス
-サンプルアプリケーションを正常に動作させるためには、利用するエッジAIデバイスに特定の設定が必要になります。 +
+- Amazon S3を使用するには、Amazon S3へアクセスするための接続情報が必要になります。
+** https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#Using_CreateAccessKey[「**AWS Identity and Access Management**」]を参考に下記の情報を取得してください。
+*** アクセスキーID
+*** シークレットアクセスキー
++
+NOTE: 外部転送設定やアプリケーションで使用するAccessKeyの取得には、MFA設定なしのアカウントを使用してください。
+
+** https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html[「**User Guide for Linux Instances**」] を参考に下記の情報を取得してください。
+*** リージョン
+
+** https://docs.aws.amazon.com/AmazonS3/latest/userguide/create-bucket-overview.html[「**Amazon Simple Storage Service (S3)**」] を参考にバケットを作成し、下記の情報を取得してください。
+*** バケット名
+
+=== エッジデバイス
+サンプルアプリケーションを正常に動作させるためには、利用するエッジデバイスに特定の設定が必要になります +
+
 必要な設定内容は下記の通りです。
 
 * AIモデルやアプリケーションがデプロイされていること
@@ -84,37 +103,45 @@ PDFビルド環境更新 +
 記述しなかった場合は以下の値が自動で設定されます。 +
 UploadMethod="BlobStorage" +
 UploadMethodIR="Mqtt"
-** 「Azure Blob Storage」 +
+** Azure Blob Storage/Amazon S3 利用時 +
 UploadMethod="BlobStorage" +
 UploadMethodIR="BlobStorage"
-** 「Local Storage」 +
+** Local Storage 利用時 +
 UploadMethod="HTTPStorage" +
 UploadMethodIR="HTTPStorage" 
++
+** 全アップロード先共通 +
+NumberOfInferencesPerMessage=1 +
+FileFormat="JPG" +
+Mode=1
 +
 ** AIモデルやアプリケーションの内容に応じて、その他のパラメータも変更する必要がある
 
 === 外部転送設定
-* 「Azure Blob Storage」利用時 +
-「Azure Blob Storage」を使用する場合は、 https://developer.aitrios.sony-semicon.com/edge-ai-sensing/documents/external-transfer-settings-tutorial-for-azure-blob-storage[外部転送設定チュートリアル(Azure Blob Storage)]の設定を完了させてください。
-* 「Local Storage」利用時 +
-「Local Storage」を使用する場合は、 https://developer.aitrios.sony-semicon.com/edge-ai-sensing/documents/external-transfer-settings-tutorial-for-http-server[外部転送設定チュートリアル(Local HTTP Server)]の設定を完了させてください。
+* Azure Blob Storage利用時 +
+Azure Blob Storageを使用する場合は、外部転送設定チュートリアル(Azure Blob Storage)の設定を完了させてください。
+* Amazon S3 利用時 +
+Amazon S3を使用する場合は、外部転送設定チュートリアル(Amazon S3)の設定を完了させてください。
+* Local Storage利用時 +
+Local Storageを使用する場合は、外部転送設定チュートリアル(Local HTTP Server)の設定を完了させてください。
 +
-IMPORTANT: デバイスからHTTP ServerへのアップロードはHTTP通信のため暗号化されません。
+IMPORTANT: エッジデバイスからHTTP ServerへのアップロードはHTTP通信のため暗号化されません。
 
 == サンプルアプリケーション動作環境
-https://developer.aitrios.sony-semicon.com/downloads#sdk-getting-started[「**SDK スタートガイド**」]を参照してください。
+https://developer.aitrios.sony-semicon.com/edge-ai-sensing/documents/sdk-getting-started/[「**SDK スタートガイド**」]を参照してください。
 
 == サンプルアプリケーション機能概要
-サンプルアプリケーションでは、「**Console**」に登録されたエッジAIデバイスを指定し、アプリケーションが推論結果と画像を取得するために必要な機能を実装しています。 +
+サンプルアプリケーションでは、「**Console**」に登録されたエッジデバイスを指定し、アプリケーションが推論結果と画像を取得するために必要な機能を実装しています。 +
 実装されている機能は下記の三点です。
 
-* 「**Console**」に登録されたエッジAIデバイスの情報取得
-* エッジAIデバイスへの推論開始・停止指示
+* 「**Console**」に登録されたエッジデバイスの情報取得
+* エッジデバイスへの推論開始・停止指示
 +
-推論開始を行うことによって、エッジAIデバイスは推論結果・画像を「**Console**」もしくは「Azure Blob Storage」もしくは「Local Storage」へUploadします。
+推論開始を行うことによって、エッジデバイスは推論結果・画像を「**Console**」もしくはAzure Blob StorageもしくはAmazon S3もしくはLocal StorageへUploadします。
+
 * 推論結果・画像の取得、取得結果の表示
 +
-「**Console**」もしくは「Azure Blob Storage」もしくは「Local Storage」にアップロードされたデータを表示します。
+「**Console**」もしくはAzure Blob StorageもしくはAmazon S3もしくはLocal Storageにアップロードされたデータを表示します。
 
 
 == サンプルアプリケーションリポジトリ構成
@@ -136,50 +163,54 @@ aitrios-sdk-cloud-app-sample-python
 │   │   │   └── ObjectDetectionTop.py
 │   │   ├── storage
 │   │   │   ├── __init__.py
-│   │   │   ├── get_azure_storage.py (4)
-│   │   │   ├── get_console_storage.py (5)
-│   │   │   ├── get_local_storage.py (6)
-│   │   ├── get_client.py  (7)
-│   │   └── get_deserialize_data.py  (8)
-│   │   └── get_storage_data.py  (9)
+│   │   │   ├── get_aws_storage.py (4)
+│   │   │   ├── get_azure_storage.py (5)
+│   │   │   ├── get_console_storage.py (6)
+│   │   │   ├── get_local_storage.py (7)
+│   │   ├── get_client.py  (8)
+│   │   └── get_deserialize_data.py  (9)
+│   │   └── get_storage_data.py  (10)
+│   │   └── util.py  (11)
 │   ├── static
 │   │   ├── css
-│   │   │   ├── Home.module.css  (10)
-│   │   │   └── reset.css  (11)
+│   │   │   ├── Home.module.css  (12)
+│   │   │   └── reset.css  (13)
 │   │   └── js
-│   │       ├── label.json  (12)
-│   │       └── sample.js  (13)
+│   │       ├── label.json  (14)
+│   │       └── sample.js  (15)
 │   └── templates
-│       └── index.html  (14)
+│       └── index.html  (16)
 ----
 (1) src : サンプルアプリケーション格納フォルダ +
 (2) app.py : flask applicationのmain処理。各種REST APIで機能を実装 +
 (3) deserialize : Deserialize用ソースコードを格納したフォルダ +
-(4) get_azure_storage.py : 「Azure Blob Storage」から推論結果や画像を取得するロジック +
-(5) get_console_storage.py : 「**Console**」から推論結果や画像を取得するロジック +
-(6) get_local_storage.py : 「Local Storage」から推論結果や画像を取得するロジック +
-(7) get_client.py : 「**Console Access Library**」のclientを生成 +
-「Azure Blob Storage」への接続情報取得ロジック +
-「Local Storage」のパス指定を行う +
-(8) get_deserialize_data.py : 推論結果をDeserializeするソースコード +
-(9) get_storage_data.py : 利用するStorageを判定し該当Storageのロジックを呼び出す +
-(10) Home.module.css : サンプルアプリケーションのフロントエンドスタイルシート +
-(11) reset.css : サンプルアプリケーションのフロントエンドスタイルシート +
-(12) label.json : 推論結果の表示ラベル +
-(13) sample.js : サンプルアプリケーションのフロントエンドUIで動作するJavaScriptロジック +
-(14) index.html : サンプルアプリケーションのフロントエンドUI
+(4) get_aws_storage.py : Amazon S3から推論結果や画像を取得するロジック +
+(5) get_azure_storage.py : Azure Blob Storageから推論結果や画像を取得するロジック +
+(6) get_console_storage.py : 「**Console**」から推論結果や画像を取得するロジック +
+(7) get_local_storage.py : Local Storageから推論結果や画像を取得するロジック +
+(8) get_client.py : 「**Console Access Library**」のclientを生成 +
+Azure Blob Storage、Amazon S3への接続情報取得ロジック +
+Local Storageのパス指定を行う +
+(9) get_deserialize_data.py : 推論結果をDeserializeするソースコード +
+(10) get_storage_data.py : 利用するStorageを判定し該当Storageのロジックを呼び出す +
+(11) util.py : 複数のファイルで汎用的に使用できるロジック +
+(12) Home.module.css : サンプルアプリケーションのフロントエンドスタイルシート +
+(13) reset.css : サンプルアプリケーションのフロントエンドスタイルシート +
+(14) label.json : 推論結果の表示ラベル +
+(15) sample.js : サンプルアプリケーションのフロントエンドUIで動作するJavaScriptロジック +
+(16) index.html : サンプルアプリケーションのフロントエンドUI
 
 === ソースコードの解説
 
 サンプルアプリケーションの概要は下記の図のようになります。
 
-image::diagram_python.png[alt="サンプルアプリケーションの概要",width="400",align="center"]
+image::images/diagram_python.png[alt="サンプルアプリケーションの概要",width="400",align="center"]
 
 サンプルアプリケーションはFlaskフレームワークで構成しています。
 
-サンプルアプリケーションから「**Cloud SDK**」を呼び出し、「**Console**」を経由してエッジAIデバイスを制御します。 +
-エッジAIデバイスが取得したデータは「**Console**」もしくは「Azure Blob Storage」もしくは「Local Storage」に保存されます。 +
-サンプルアプリケーションは「**Cloud SDK**」等を使用して「**Console**」もしくは「Azure Blob Storage」もしくは「Local Storage」からデータを取得します。
+サンプルアプリケーションから「**Cloud SDK**」を呼び出し、「**Console**」を経由してエッジデバイスを制御します。 +
+エッジデバイスが取得したデータは「**Console**」もしくはAzure Blob StorageもしくはAmazon S3もしくはLocal Storageに保存されます。 +
+サンプルアプリケーションは「**Cloud SDK**」等を使用して「**Console**」もしくはAzure Blob StorageもしくはAmazon S3もしくはLocal Storageからデータを取得します。
 
 === サンプルアプリケーションが依存するPackage（フレームワーク）
 
@@ -188,6 +219,7 @@ image::diagram_python.png[alt="サンプルアプリケーションの概要",wi
 * https://google.github.io/flatbuffers/[FlatBuffers]
 * https://pypi.org/project/pytz/[pytz]
 * https://pypi.org/project/azure-storage-blob/[azure-storage-blob]
+* https://aws.amazon.com/jp/sdk-for-python/[boto3]
 
 [#_Execute_sampleapp]
 == サンプルアプリケーション実行方法
@@ -217,8 +249,9 @@ console_access_settings:
 * `**client_id**` に、登録したアプリケーションの クライアントID を指定します。 +
 +
 
-IMPORTANT: クライアントIDとシークレットの取得方法詳細は、 https://developer.aitrios.sony-semicon.com/documents/portal-user-manual[「**Portalユーザーマニュアル**」] の「SDK用のClient Secretを発行する」をお読みください。 + 
-コンソールエンドポイントとポータル認証エンドポイントの取得方法詳細は、link:++https://developer.aitrios.sony-semicon.com/file/download/rest-api-authentication++[こちらのドキュメント] をお読みください。 +
+
+IMPORTANT: クライアントIDとシークレットの取得方法詳細は、 https://developer.aitrios.sony-semicon.com/edge-ai-sensing/documents/portal-user-manual/[「**Portalユーザーマニュアル**」] の「SDK用のClient Secretを発行する」をお読みください。 + 
+コンソールエンドポイントとポータル認証エンドポイントの取得方法詳細は、link:++https://developer.aitrios.sony-semicon.com/file/download/edge-ai-sensing-portal-console-end-point-info/++[「**PortalおよびConsoleのエンドポイント情報**」] をお読みください。 +
 これらは「**Console**」へのアクセス情報となります。 + 
 公開したり、他者との共有をせず、取り扱いには十分注意してください。
 +
@@ -255,7 +288,7 @@ IMPORTANT: コンソールエンドポイントとクライアントIDとシー�
 NOTE: Proxy環境でサンプルアプリケーション実行する場合、環境変数 `**https_proxy**` の設定をしてください。
 
 . Codespacesまたは、リポジトリをCloneした環境上で [src/common]配下に[azure_access_settings.yaml]を作成し接続先情報を設定します。 +
-本設定は、推論結果取得先が「Azure Blob Storage」の時に設定します。
+本設定は、推論結果取得先がAzure Blob Storageの時に設定します。
 
 
 +
@@ -270,11 +303,37 @@ azure_access_settings:
 ----
 |===
 
-* `**connection_string**` に、「Azure Blob Storage」の接続情報を指定します。 +
-* `**container_name**` に、「Azure Blob Storage」のコンテナ名を指定します。
+* `**connection_string**` に、Azure Blob Storageの接続情報を指定します。 +
+* `**container_name**` に、Azure Blob Storageのコンテナ名を指定します。
 +
 
-IMPORTANT: これらは「Azure Blob Storage」へのアクセス情報となります。 +
+IMPORTANT: これらはAzure Blob Storageへのアクセス情報となります。 +
+公開したり、他者との共有をせず、取り扱いには十分注意してください。 +
+
+. Codespacesまたは、リポジトリをCloneした環境上で [src/common]配下に[aws_access_settings.yaml]を作成し接続先情報を設定します。 +
+本設定は、推論結果取得先がAmazon S3の時に設定します。
+
++
+|===
+|src/common/aws_access_settings.yaml
+a|
+[source,Yaml]
+----
+aws_access_settings:
+  bucket_name: "バケット名"
+  access_key_id: "アクセスキーID"
+  secret_access_key: "シークレットアクセスキー"
+  region: "リージョン"
+----
+|===
++
+* `**bucket_name**` に、Amazon S3のバケット名を設定します。 +
+* `**access_key_id**` に、Amazon S3のアクセスキーIDを指定します。 +
+* `**secret_access_key**` に、Amazon S3のシークレットアクセスキーを指定します。 +
+* `**region**` に、Amazon S3のリージョンを指定します。 +
++
+
+IMPORTANT: これらはAmazon S3へのアクセス情報となります。 +
 公開したり、他者との共有をせず、取り扱いには十分注意してください。 +
 
 . Codespacesまたは、リポジトリをCloneした環境上で [src/common]配下に[get_client.py]に接続先情報を設定します。
@@ -287,6 +346,7 @@ a|
 class Service(Enum):
     Console = auto()
     Azure = auto()
+    AWS = auto()
     Local = auto()
 
 
@@ -296,13 +356,13 @@ LOCAL_ROOT = ""
 |===
 +
 * `**CONNECTION_DESTINATION**` に、推論結果取得先を設定します。デフォルト値は `**Service.Console**` です。 +
-* `**LOCAL_ROOT**` に、「Local Storage」のパスを指定します。 +
+* `**LOCAL_ROOT**` に、Local Storageのパスを指定します。 +
 本設定は、 `**CONNECTION_DESTINATION**` に `**Service.Local**` を指定した場合に利用されます。 +
 
 NOTE: Dev Container環境を利用する場合、Local Storageをgit cloneしたフォルダ内にフォルダ作成し、 +
 `**LOCAL_ROOT**` は `**/workspace/{git cloneしたフォルダ内に作成したフォルダ}**` と設定する。
 
-image::prepare_python_ja.png[alt="サンプルアプリケーション実行の準備をする",width="700",align="center"]
+image::images/prepare_python_ja.png[alt="サンプルアプリケーション実行の準備をする",width="700",align="center"]
 
 === 2.サンプルアプリケーションを開始する
 Codespacesまたは、リポジトリをCloneした環境上のターミナルからpackageのインストールとサンプルアプリケーションの起動を行います。
@@ -312,31 +372,31 @@ $ pip install .
 $ python src/app.py
 ....
 
-image::launch_app_python_ja.png[alt="サンプルアプリケーションを開始する",width="700",align="center"]
+image::images/launch_app_python_ja.png[alt="サンプルアプリケーションを開始する",width="700",align="center"]
 
 === 3.推論を開始する
 ブラウザからサンプルアプリケーションにアクセスして、各種操作を行います。
 
 . ブラウザで http://localhost:3000 (Codespacesの場合は、ポート転送されたURL)を開く 
 . [**DeviceID**]のリストからDevice IDを選択する
-. [**START**]をクリックし、エッジAIデバイスの推論を開始する
+. [**START**]をクリックし、エッジデバイスの推論を開始する
 
-image::start_inference_python_ja.png[alt="推論を開始する",width="700",align="center"]
+image::images/start_inference_python_ja.png[alt="推論を開始する",width="700",align="center"]
 
 === 4.推論結果と画像を確認する
 推論開始中は、"**Image/Inference**"エリアに画像と推論結果を表示します。
 
-image::running_python_ja.png[alt="推論結果と画像を確認する",width="700",align="center"]
+image::images/running_python_ja.png[alt="推論結果と画像を確認する",width="700",align="center"]
 
 
 === 5.推論を停止する
-サンプルアプリケーションの[**STOP**]をクリックし、エッジAIデバイスの推論を停止します。
+サンプルアプリケーションの[**STOP**]をクリックし、エッジデバイスの推論を停止します。
 
-image::stop_inference_python_ja.png[alt="推論を停止する",width="700",align="center"]
+image::images/stop_inference_python_ja.png[alt="推論を停止する",width="700",align="center"]
 
 == ユースケース毎の実装説明
 
-=== 1.「**Console**」に登録されたエッジAIデバイスの情報を取得する
+=== 1.「**Console**」に登録されたエッジデバイスの情報を取得する
 
 「**Console**」を利用するために、「**Cloud SDK**」のClientを生成します。 + 
 生成したClientから、「**Console**」の提供する機能を利用します。
@@ -373,7 +433,7 @@ def get_console_client():
 `**Config**` に接続情報を指定し、 `**config_obj**` を生成します。 +
 `**Client**` に `**config_obj**` を指定し、 `**client_obj**` を生成します。
 
-* デバイス情報取得
+* エッジデバイス情報取得
 +
 [source,Python]
 ----
@@ -382,9 +442,9 @@ def get_devices():
   client_obj.device_management.get_devices()
 ----
 上記のように、`**get_console_client**` を呼び出し、 `**client_obj**` を生成します。 +
-`**client_obj**` の `**device_management**` が提供する `**get_devices**` を使用してデバイスの情報を取得します。
+`**client_obj**` の `**device_management**` が提供する `**get_devices**` を使用してエッジデバイスの情報を取得します。
 
-* デバイスパラメータ取得
+* エッジデバイスパラメータ取得
 +
 [source,Python]
 ----
@@ -393,10 +453,10 @@ def get_command_parameter_file():
   return client_obj.device_management.get_command_parameter_file()
 ----
 上記のように、`**get_console_client**` を呼び出し、 `**client_obj**` を生成します。 +
-`**client_obj**` の `**device_management**` が提供する `**get_command_parameter_file**` を使用してデバイスのパラメータを取得します。
+`**client_obj**` の `**device_management**` が提供する `**get_command_parameter_file**` を使用してエッジデバイスのパラメータを取得します。
 
 
-=== 2.エッジAIデバイスへ推論開始を指示する
+=== 2.エッジデバイスへ推論開始を指示する
 
 
 * 推論開始
@@ -497,8 +557,8 @@ deserialize_data = get_deserialize_data.get_deserialize_data(latest_inference_da
 上記のソースコードでは、「**Console**」から取得した推論結果を参照可能な形式へ変換する処理を行っています。 +
 この変換処理の詳細について、 https://github.com/SonySemiconductorSolutions/aitrios-sdk-deserialization-sample[「Cloud SDK Deserialize サンプル」] を参照してください。
 
-=== 4.「Azure Blob Storage」の推論結果・画像を取得する
-「Azure Blob Storage」から推論結果・画像を取得するために、storageディレクトリ配下のget_azure_storage.pyを利用します。
+=== 4.Azure Blob Storageの推論結果・画像を取得する
+Azure Blob Storageから推論結果・画像を取得するために、storageディレクトリ配下のget_azure_storage.pyを利用します。
 
 * 画像リストを取得する
 +
@@ -640,10 +700,152 @@ def get_inference_from_azure(retry_count,
 `**azure.storage.blob**` が提供する `**get_blob_client**` 、 `**download_blob**` 、 `**readall**` を利用して推論結果データを取得します。
 `**start_inference_time**` は検索開始位置を表すタイムスタンプです。 +
 `**end_inference_time**` は検索終了位置を表すタイムスタンプです。 +
-`**number_of_inference_result**` は取得する推論結果の数です。 +
+`**number_of_inference_result**` は取得する推論結果の数です。
 
-=== 5.「Local Storage」の推論結果・画像を取得する
-「Local Storage」から推論結果・画像を取得するために、storageディレクトリ配下のget_local_storage.pyを利用します。
+=== 5.Amazon S3の推論結果・画像を取得する
+Amazon S3から推論結果・画像を取得するために、storageディレクトリ配下のget_aws_storage.pyを利用します。
+
+* 画像リストを取得する
++
+[source,Python]
+----
+def get_image_from_aws(retry_count, device_id, sub_directory, order_by="ASC", skip=0, number_of_images=50):
+    """Get the image from AWS
+    Args:
+        retry_count (int): Number of retries on failure
+        device_id (str): Device id
+        sub_directory (str): image file uploaded directory
+        order_by (str): Sort order by date and time the image was created. DESC, ASC
+        skip (int): Number of images to skip fetching
+        number_of_images (int): Number of images acquired
+    Returns:
+        total_image_count (int): get images number
+        images :[{
+            contents (str): base64 encode image data
+            name (str): image file name
+        }]
+    """
+    image_response = {
+        "total_image_count": 0,
+        "images": []
+    }
+    access_info = get_client.get_aws_access_settings()
+    access_key_id = access_info["access_key_id"]
+    secret_access_key = access_info["secret_access_key"]
+    region = access_info["region"]
+
+    s3_client = _get_s3_client(access_key_id, secret_access_key, region)
+
+    bucket_name = access_info["bucket_name"]
+    prefix = f"{device_id}/image/{sub_directory}/"
+
+    image_name_list = _get_key_list_from_aws(s3_client, bucket_name, prefix)
+    if order_by == "DESC":
+        image_name_list.sort(reverse=True)
+
+    images = []
+
+    for i in range(skip, skip + number_of_images):
+        if i >= len(image_name_list):
+            break
+        image_name = image_name_list[i].split("/")[3]
+
+        response = s3_client.get_object(Bucket=bucket_name, Key=image_name_list[i])
+        contents = response["Body"].read()
+        b64encoded = base64.b64encode(contents)
+
+        images.append({
+            "name": image_name,
+            "contents": b64encoded.decode()
+        })
+
+    if len(image_name_list) != 0:
+        image_response["total_image_count"] = len(image_name_list)
+        image_response["images"] = images
+        return image_response
+
+    if retry_count > 0:
+        time.sleep(1)
+        return get_image_from_aws(retry_count - 1,
+                                  device_id,
+                                  sub_directory,
+                                  order_by,
+                                  skip,
+                                  number_of_images)
+
+    return image_response
+----
+boto3が提供するをlist_objects_v2使用して画像ファイル名のリストを取得します。 +
+boto3が提供するget_objectを利用して画像データを取得します。 +
+画像ファイル名とbase64を作成し、`**total_image_count**` と合わせて返却します。
+
+* 最新の画像に紐づく推論結果を取得する
+
+[source,Python]
+----
+def get_inference_from_aws(retry_count,
+                           device_id,
+                           sub_directory,
+                           start_inference_time=None,
+                           end_inference_time=None,
+                           number_of_inference_result=None):
+    """Get inference_data from AWS
+    Args:
+        retry_count (int): Number of retries on failure
+        device_id (str): Device id
+        sub_directory (str): image file uploaded directory
+        start_inference_time (str): start range.
+        end_inference_time (str): end range.
+        number_of_inference_result (int): Number of cases to get.
+    Returns:
+        inferences (arr): inference results
+    """
+    inferences = []
+    access_info = get_client.get_aws_access_settings()
+    access_key_id = access_info["access_key_id"]
+    secret_access_key = access_info["secret_access_key"]
+    region = access_info["region"]
+
+    s3_client = _get_s3_client(access_key_id, secret_access_key, region)
+
+    bucket_name = access_info["bucket_name"]
+    prefix = f"{device_id}/metadata/{sub_directory}/"
+
+    inference_name_list = _get_key_list_from_aws(s3_client, bucket_name, prefix)
+
+    for file_path in inference_name_list:
+        timestamp = file_path.split("/")[3].replace(".txt", "")
+        if (start_inference_time is None or timestamp >= start_inference_time) and\
+                (end_inference_time is None or timestamp < end_inference_time):
+            response = s3_client.get_object(Bucket=bucket_name, Key=file_path)
+
+            contents = json.loads(response["Body"].read())
+            inferences.append(contents["Inferences"][0]["O"])
+
+        if end_inference_time is not None and timestamp > end_inference_time:
+            break
+
+        if len(inference_name_list) == number_of_inference_result:
+            break
+
+    if retry_count > 0:
+        time.sleep(1)
+        return get_inference_from_aws(retry_count - 1,
+                                      device_id,
+                                      sub_directory,
+                                      start_inference_time,
+                                      end_inference_time,
+                                      number_of_inference_result)
+    return inferences
+----
+boto3が提供するをlist_objects_v2使用して推論結果ファイル名のリストを取得します。 +
+boto3が提供するget_objectを使用して推論結果データを取得します。 +
+`**start_inference_time**` は検索開始位置を表すタイムスタンプです。 +
+`**end_inference_time**` は検索終了位置を表すタイムスタンプです。 +
+`**number_of_inference_result**` は取得する推論結果の数です。
+
+=== 6.Local Storageの推論結果・画像を取得する
+Local Storageから推論結果・画像を取得するために、storageディレクトリ配下のget_local_storage.pyを利用します。
 
 * 画像リストを取得する
 +
@@ -754,7 +956,7 @@ def get_inference_from_local(device_id, sub_directory, start_inference_time=None
 `**end_inference_time**` は検索終了位置を表すタイムスタンプです。 +
 `**number_of_inference_result**` は取得する推論結果の数です。 +
 
-=== 6.エッジAIデバイスへの推論停止を指示する
+=== 6.エッジデバイスへの推論停止を指示する
 
 * 推論停止
 +
@@ -764,7 +966,7 @@ def stop_upload_inference_result():
   client_obj = get_console_client()
   return client_obj.device_management.stop_upload_inference_result(device_id="device_id")
 ----
-エッジAIデバイスの推論処理を停止するには、上記のように `**client_obj**` の `**device_management**` が提供する `**stop_upload_inference_result**` を実行します。 +
+エッジデバイスの推論処理を停止するには、上記のように `**client_obj**` の `**device_management**` が提供する `**stop_upload_inference_result**` を実行します。 +
 引数の `**device_id**` には、停止対象の Device ID を指定します。
 
 == 参考資料

@@ -18,8 +18,8 @@ import os
 import base64
 import json
 import time
-from pathlib import Path
 from src.common import get_client
+from src.common.util import file_absolute_path_check, file_symbolic_check, storage_dir_existence_check
 
 
 def get_image_from_local(retry_count, device_id, sub_directory, order_by="ASC", skip=0, number_of_images=50):
@@ -45,11 +45,8 @@ def get_image_from_local(retry_count, device_id, sub_directory, order_by="ASC", 
     storage_path = os.path.join(get_client.LOCAL_ROOT, device_id, "image", sub_directory)
     order_by = order_by.upper() if order_by else "ASC"
     images = []
-    if not os.path.exists(storage_path):
-        raise FileNotFoundError("Data does not exist")
-
-    if not os.path.isabs(storage_path):
-        raise ValueError("Only absolute paths are supported.")
+    storage_dir_existence_check(storage_path)
+    file_absolute_path_check(storage_path)
 
     files = os.listdir(storage_path)
     image_files = []
@@ -65,9 +62,7 @@ def get_image_from_local(retry_count, device_id, sub_directory, order_by="ASC", 
             break
 
         file_path = os.path.join(storage_path, image_file)
-        symbolic_link = Path(file_path).is_symlink()
-        if symbolic_link is True:
-            raise IsADirectoryError("Can't open symbolic link file.")
+        file_symbolic_check(file_path)
         with open(file_path, "rb") as file:
             data = file.read()
             base64_image = base64.b64encode(data).decode("utf-8")
@@ -107,11 +102,8 @@ def get_inference_from_local(retry_count, device_id, sub_directory, start_infere
     """
     storage_path = os.path.join(get_client.LOCAL_ROOT, device_id, "meta", sub_directory)
     inference_results = []
-    if not os.path.exists(storage_path):
-        raise FileNotFoundError("Data does not exist")
-
-    if not os.path.isabs(storage_path):
-        raise ValueError("Only absolute paths are supported.")
+    storage_dir_existence_check(storage_path)
+    file_absolute_path_check(storage_path)
 
     inference_files = os.listdir(storage_path)
     for file_name in inference_files:
@@ -119,9 +111,7 @@ def get_inference_from_local(retry_count, device_id, sub_directory, start_infere
         if (start_inference_time is None or timestamp >= start_inference_time) and\
                 (end_inference_time is None or timestamp < end_inference_time):
             inference_data_path = os.path.join(storage_path, file_name)
-            symbolic_link = Path(inference_data_path).is_symlink()
-            if symbolic_link is True:
-                raise IsADirectoryError("Can't open symbolic link file.")
+            file_symbolic_check(inference_data_path)
             with open(inference_data_path, "r") as file:
                 inference_data = json.load(file)
                 inference_result = inference_data["Inferences"][0]["O"]
