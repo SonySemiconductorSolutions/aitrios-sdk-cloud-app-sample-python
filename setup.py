@@ -18,7 +18,7 @@ import os
 from setuptools import find_packages, setup
 
 PACKAGE_NAME = "flask_sample_app"
-PACKAGE_VERSION = "1.1.0"
+PACKAGE_VERSION = "1.2.0"
 PACKAGE_DESCRIPTION = "flask_sample_app"
 AUTHOR_NAME = "Sony Semiconductor Solutions Corporation"
 AUTHOR_EMAIL = ""
@@ -42,6 +42,7 @@ setup(
         'flask',
         'pytz==2023.3.post1',
         'azure-storage-blob==12.19.0',
+        'boto3==1.33.2',
         'flatbuffers==23.1.21',
         "nassl>=4.0",
         "cryptography>=36.0",
@@ -54,6 +55,7 @@ setup(
     extras_require={
         "develop": [
             'pytest',
+            'flake8',
             'pytest-mock',
             'pytest-cov',
             'pytest-html',

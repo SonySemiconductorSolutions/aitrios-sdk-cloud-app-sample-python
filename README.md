@@ -21,7 +21,7 @@ This repository provides sample code for applications using "**Cloud SDK**" for 
 None
 
 ## Getting Started
-See the ["**SDK Getting Started**"](https://developer.aitrios.sony-semicon.com/en/downloads#sdk-getting-started).
+See the ["**SDK Getting Started**"](https://developer.aitrios.sony-semicon.com/en/edge-ai-sensing/documents/sdk-getting-started/).
 
 ## Tutorials
 You can use tutorial to experience how to use "**Console Access Library Python**" and how to implement an application.
@@ -33,14 +33,14 @@ See the ["**Cloud SDK Sample Application Python Tutorial**"](./docs/development-
 - ["**Cloud SDK Sample Application Python Functional Specifications**"](./docs/development-docs/CloudSDK_FuncSpec_SampleApp_Python.adoc)
 
 ## Get support
-- [Contact us](https://developer.aitrios.sony-semicon.com/en/contact-us-en)
+- [Contact us](https://developer.aitrios.sony-semicon.com/en/edge-ai-sensing/contact-us/)
 
 ## See also
 - [aitrios-sdk-console-access-lib-python](https://github.com/SonySemiconductorSolutions/aitrios-sdk-console-access-lib-python)
 - ["**Developer Site**"](https://developer.aitrios.sony-semicon.com/en/edge-ai-sensing/)
 
 ## Trademark
-- ["**Read This First**"](https://developer.aitrios.sony-semicon.com/en/documents/read-this-first)
+- ["**Read This First**"](https://developer.aitrios.sony-semicon.com/en/edge-ai-sensing/documents/read-this-first/)
 
 ## Versioning
 
@@ -54,3 +54,9 @@ Each release is generated in the main branch. Pre-releases are generated in the 
 
 ## Security
 Before using Codespaces, please read the Site Policy of GitHub and understand the usage conditions. 
+
+This software is Beta version. Please note the following when using it.
+
+Regarding the use of Beta version:
+- Beta version is released with the assumption for use in development.
+- Beta version may contain errors or defects that obstruct regular operation of the Edge Device.

@@ -14,11 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import os
-from src.common.storage import get_azure_storage, get_console_storage, get_local_storage
+from src.common.storage import get_azure_storage, get_aws_storage, get_console_storage, get_local_storage
 from src.common import get_client
 from src.common.get_client import CONNECTION_DESTINATION, LOCAL_ROOT, Service
 from console_access_library.common.read_console_access_settings import \
     ReadConsoleAccessSettings
+from src.common.util import file_existence_check
 
 RETRY_COUNT = 5
 
@@ -37,6 +38,9 @@ def get_image(device_id, sub_directory, order_by=None, skip=None, number_of_imag
     if CONNECTION_DESTINATION == Service.Azure:
         if check_azure_settings("azure_access_settings.yaml"):
             result = get_azure_storage.get_image_from_azure(RETRY_COUNT, device_id, sub_directory, order_by, skip, number_of_images)
+    elif CONNECTION_DESTINATION == Service.AWS:
+        if check_aws_settings("aws_access_settings.yaml"):
+            result = get_aws_storage.get_image_from_aws(RETRY_COUNT, device_id, sub_directory, order_by, skip, number_of_images)
     elif CONNECTION_DESTINATION == Service.Local:
         if check_local_settings(LOCAL_ROOT):
             result = get_local_storage.get_image_from_local(RETRY_COUNT, device_id, sub_directory, order_by, skip, number_of_images)
@@ -61,6 +65,9 @@ def get_inference(device_id, sub_directory, start_inference_time=None, end_infer
     if CONNECTION_DESTINATION == Service.Azure:
         if check_azure_settings("azure_access_settings.yaml"):
             inferences = get_azure_storage.get_inference_from_azure(RETRY_COUNT, device_id, sub_directory, start_inference_time, end_inference_time, number_of_inference_result)
+    elif CONNECTION_DESTINATION == Service.AWS:
+        if check_aws_settings("aws_access_settings.yaml"):
+            inferences = get_aws_storage.get_inference_from_aws(RETRY_COUNT, device_id, sub_directory, start_inference_time, end_inference_time, number_of_inference_result)
     elif CONNECTION_DESTINATION == Service.Local:
         if check_local_settings(LOCAL_ROOT):
             inferences = get_local_storage.get_inference_from_local(RETRY_COUNT, device_id, sub_directory, start_inference_time, end_inference_time, number_of_inference_result)
@@ -77,12 +84,30 @@ def check_azure_settings(settings_path):
     Returns:
         True or ValueError
     """
-    if not os.path.isfile(os.path.join(os.getcwd(), "src", "common", settings_path)):
-        raise ValueError("connection settings file does not exist.")
-
+    setting_file_path = os.path.join(os.getcwd(), "src", "common", settings_path)
+    file_existence_check(setting_file_path)
     connection_info = get_client.get_azure_access_settings()
     if connection_info.get("connection_string") is None or \
             connection_info.get("container_name") is None:
+        raise ValueError("Wrong setting. Check the settings.")
+
+    return True
+
+
+def check_aws_settings(settings_path):
+    """Check aws settings file
+    Args:
+        path (str): aws connection settings file path
+    Returns:
+        True or ValueError
+    """
+    setting_file_path = os.path.join(os.getcwd(), "src", "common", settings_path)
+    file_existence_check(setting_file_path)
+    connection_info = get_client.get_aws_access_settings()
+    if connection_info.get("access_key_id") is None or \
+            connection_info.get("secret_access_key") is None or \
+            connection_info.get("region") is None or \
+            connection_info.get("bucket_name") is None:
         raise ValueError("Wrong setting. Check the settings.")
 
     return True
@@ -110,8 +135,7 @@ def check_console_settings(settings_path):
     """
     setting_file_path = os.path.join(
         os.getcwd(), "src", "common", "console_access_settings.yaml")
-    if not os.path.isfile(setting_file_path):
-        raise ValueError("connection settings file does not exist.")
+    file_existence_check(setting_file_path)
     read_console_access_settings_obj = ReadConsoleAccessSettings(
         setting_file_path)
     if read_console_access_settings_obj.console_endpoint is None or \

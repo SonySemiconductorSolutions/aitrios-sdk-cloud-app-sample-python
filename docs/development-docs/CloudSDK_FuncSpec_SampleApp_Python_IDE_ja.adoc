@@ -32,6 +32,7 @@ PDFビルド環境更新
 == はじめに
 * 本書は、Codespacesにて提供するPython向け開発環境の機能仕様書である。
 
+
 == 用語・略語
 |===
 |Terms/Abbreviations |Meaning 
@@ -104,4 +105,3 @@ Python開発にてデバッグ補助として VS Code上でJupyter Notebookを�
 * なし
 
 == 未決定事項
-* なし

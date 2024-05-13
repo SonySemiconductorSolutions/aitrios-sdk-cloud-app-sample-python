@@ -30,7 +30,7 @@ function getDeviceData () {
     .then((json) => {
       const deviceIdList = json.devices_data
       if (json.devices_data.length === 0) {
-        return window.alert("Connected device not found.")
+        return window.alert("Connected Edge Device not found.")
       }
       const deviceElm = document.getElementById("device-id-list")
       for (const elem of deviceIdList) {
