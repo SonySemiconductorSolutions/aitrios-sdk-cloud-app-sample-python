@@ -21,7 +21,7 @@
 |2022/12/12
 |Initial draft
 
-|2023/1/30
+|2023/01/30
 |Fixed typos + 
 Unified the swinging of expressions + 
 Fixed the notation + 
@@ -31,24 +31,28 @@ Removed the [console_access_settings.yaml] from the sample application repositor
 Changed the procedure for setting the connection information in the "Prepare to run the sample application" +
 Changed implementation description for each use case for "**Cloud SDK**" 0.2.0
 
-|2023/5/26
+|2023/05/26
 |Fixed the "Reference materials" in "Sample application repository structure" with FlatBuffers version up +
 Fixed a lack of FlatBuffers in the "Package (framework) on which the sample application depends" +
 Fixed a code misquote in the "Implementation description for each use case" + 
 Fixed parenthesis notation for tool names + 
 Added alternate text to images
 
-|2023/12/22
+|2023/09/26
 |Console Developer Edition and Console
 Enterprise Edition support
+
+|2023/12/05
+|AWS support
 
 |===
 
 == Introduction
 This tutorial explains a sample application using the "**Cloud SDK**". + 
 This sample application demonstrates the basic use of the "**Cloud SDK**". + 
-In the sample application, one can verify how to control edge AI devices using "**Cloud SDK**" and also how to check the output of the Edge AI devices uploaded to "**Console for AITRIOS**" (hereafter, referred to as "**Console**") or "Azure Blob Storage" or "Local Storage". + 
-However, Codespaces cannot be used when checking the inference results uploaded to the "Local Storage". 
+
+In the sample application, one can check how to control the Edge Devices using "**Cloud SDK**" and also how to verify the output of the Edge Devices uploaded to either to the "**Console for AITRIOS**" (hereafter referred to as "**Console**") or Azure  Blob Storage or Amazon S3 or Local Storage.
+However, Codespaces cannot be used when checking the inference results uploaded to Local Storage.
 
 [#_precondition]
 == Prerequisite
@@ -60,23 +64,36 @@ The required information is as follows:
 * Client application details
 - When "**Console Developer Edition**" is used 
 ** Refer to the client application list in "**Portal for AITRIOS**" or register the client application for the sample application based on the requirement and obtain the following information. For 
-details, refer to "Issuing a Client Secret for SDK" in the https://developer.aitrios.sony-semicon.com/en/documents/portal-user-manual["**Portal User Manual**"].
+details, refer to "Issuing a Client Secret for SDK" in the https://developer.aitrios.sony-semicon.com/en/edge-ai-sensing/documents/portal-user-manual/["**Portal User Manual**"].
 
 *** Client ID
 *** Secret
 +
-** Get the following information from link:++https://developer.aitrios.sony-semicon.com/en/file/download/rest-api-authentication++[this material].
+
+** Get the following information from link:++https://developer.aitrios.sony-semicon.com/en/file/download/edge-ai-sensing-portal-console-end-point-info/++["**Portal and Console endpoint information**"].
 *** Console endpoint
 *** Portal authorization endpoint
 
 - When using "**Console Enterprise Edition**"
 ** Please contact "**Console**" deployment representative (Service Administrator).
 
-For using "Azure Blob Storage", connection information is required to access "Azure Blob Storage".
+- For using Azure Blob Storage, connection information is required to access Azure Blob Storage. +
 For details, refer https://learn.microsoft.com/en-us/azure/storage/common/storage-configure-connection-string#configure-a-connection-string-for-an-azure-storage-account["**Configure a connection string for an Azure storage account**"].
+- To use Amazon S3, connection information is required to access Amazon S3.
+** Please obtain the following information by referring to https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#Using_CreateAccessKey["**AWS Identity and Access Management**"].
+*** Access key ID
+*** Secret access key
++
+NOTE: Use an account without MFA setting for external transfer settings for obtaining the AccessKey that is used in external transfer settings or applications.
 
-=== Edge AI devices
-In order for the sample application to work properly, the edge AI device must have specific settings. + 
+** Please obtain the following information by referring to https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html["**User Guide for Linux Instances**"] 
+*** Region
+
+** Create a bucket referring to https://docs.aws.amazon.com/AmazonS3/latest/userguide/create-bucket-overview.html["**Amazon Simple Storage Service (S3)**"] and obtain the following information.
+*** Bucket name
+
+=== Edge Devices
+In order for the sample application to work properly, the Edge Device must have specific settings. + 
 Required settings are as follows:
 
 * AI model and application are deployed
@@ -88,40 +105,50 @@ Required settings are as follows:
 When not described, the following values are set automatically. +
 UploadMethod="BlobStorage" +
 UploadMethodIR="Mqtt"
-** "Azure Blob Storage" +
+** When using Azure Blob Storage/Amazon S3 +
 UploadMethod="BlobStorage" +
 UploadMethodIR="BlobStorage"
-** "Local Storage" +
+** When using Local Storage +
 UploadMethod="HTTPStorage" +
 UploadMethodIR="HTTPStorage"
++
+** All common upload locations +
+NumberOfInferencesPerMessage=1 +
+FileFormat="JPG" +
+Mode=1
++
 ** Other parameters need to be changed depending on the AI model and application content
 
 === External transfer settings
-* When using "Azure Blob Storage" +
-When using "Azure Blob Storage", complete the settings available in https://developer.aitrios.sony-semicon.com/en/edge-ai-sensing/documents/external-transfer-settings-tutorial-for-azure-blob-storage[External transfer setting tutorial(Azure Blob Storage)]. +
-* When using "Local Storage" +
-When using "Local Storage", complete the settings available in the https://developer.aitrios.sony-semicon.com/en/edge-ai-sensing/documents/external-transfer-settings-tutorial-for-http-server[External transfer settings tutorial(Local HTTP Server)].
+* When using Azure Blob Storage +
+When using Azure Blob Storage, complete the setting of the external transfer setting tutorial (Azure Blob Storage).
+* When using Amazon S3 +
+When using Amazon S3, complete the settings in the External transfer settings tutorial (Amazon S3).
+* When using Local Storage +
+When using Local Storage, complete the settings in the External transfer settings tutorial (Local HTTP Server).
 +
-IMPORTANT: Uploads from the device to HTTP Server are not encrypted due to HTTP communication.
+IMPORTANT: Uploads from the Edge Device to HTTP Server are not encrypted due to HTTP communication.
 
 == Sample application operating environment
-See the https://developer.aitrios.sony-semicon.com/en/downloads#sdk-getting-started["**SDK Getting Started**"].
+See the https://developer.aitrios.sony-semicon.com/en/edge-ai-sensing/documents/sdk-getting-started/["**SDK Getting Started**"].
 
 == Sample application functional overview
-The sample application implements the functionality required to specify an edge AI device enrolled in the "**Console**" and get inference results and images. + 
+The sample application implements the functionality required to specify an Edge Device enrolled in the "**Console**" and get inference results and images. + 
 The following three functions are implemented:
 
-* Get information about edge AI devices enrolled in the "**Console**"
-* Instruct edge AI devices to start/stop inference
+* Get information about Edge Devices enrolled in the "**Console**"
+* Instruct Edge Devices to start/stop inference
 +
-By starting inference, the EdgeAI device uploads the inference results/images to either the "**Console**" or "Azure Blob Storage" or "Local Storage". 
+
+By starting inference, the Edge Device uploads the inference results/images to either the "**Console**", Azure Blob Storage, Amazon S3 or Local Storage. 
+
 + 
 * Obtain the inference results/images and display the fetched results. 
 + 
-Displays the data uploaded to "**Console**" or "Azure Blob Storage" or "Local Storage"
+Displays the data uploaded to "**Console**", Azure Blob Storage, Amazon S3 or Local Storage
 
 
-== Sample application repository structure
+== Sample application repository configuration
 Sample application operating environment is as follows: + 
 Omit parts that are not relevant to the implementation.
 ----
@@ -140,50 +167,55 @@ aitrios-sdk-cloud-app-sample-python
 │   │   │   └── ObjectDetectionTop.py
 │   │   ├── storage
 │   │   │   ├── __init__.py
-│   │   │   ├── get_azure_storage.py (4)
-│   │   │   ├── get_console_storage.py (5)
-│   │   │   ├── get_local_storage.py (6)
-│   │   ├── get_client.py  (7)
-│   │   └── get_deserialize_data.py  (8)
-│   │   └── get_storage_data.py  (9)
+│   │   │   ├── get_aws_storage.py (4)
+│   │   │   ├── get_azure_storage.py (5)
+│   │   │   ├── get_console_storage.py (6)
+│   │   │   ├── get_local_storage.py (7)
+│   │   ├── get_client.py  (8)
+│   │   └── get_deserialize_data.py  (9)
+│   │   └── get_storage_data.py  (10)
+│   │   └── util.py  (11)
 │   ├── static
 │   │   ├── css
-│   │   │   ├── Home.module.css  (10)
-│   │   │   └── reset.css  (11)
+│   │   │   ├── Home.module.css  (12)
+│   │   │   └── reset.css  (13)
 │   │   └── js
-│   │       ├── label.json  (12)
-│   │       └── sample.js  (13)
+│   │       ├── label.json  (14)
+│   │       └── sample.js  (15)
 │   └── templates
-│       └── index.html  (14)
+│       └── index.html  (16)
 ----
 (1) src : Sample application folder +
-(2) app.py : Main processing of flask application. Implementing functionality with various REST APIs +
-(3) deserialize : Folder containing source code to deserialize +
-(4) get_azure_storage.py : Logic to obtain inference results and images from "Azure Blob Storage" +
-(5) get_console_storage.py :Logic to obtain inference results and images from "**Console**" +
-(6) get_local_storage.py : Logic to fetch inference results and images from "Local Storage" +
-(7) get_client.py : Generates a client of "**Console Access Library**" +
-Logic to fetch the information to connect to the "Azure Blob Storage" +
-Specify the path of "Local Storage". +
-(8) get_deserialize_data.py : Source code to deserialize inference results +
-(9) get_storage_data.py : Determines the Storage to use and invokes the logic of the appropriate Storage +
-(10) Home.module.css : Sample application frontend style sheet +
-(11) reset.css : Sample application frontend style sheet +
-(12) label.json : Inference result display label +
-(13) sample.js : JavaScript logic running in the frontend UI of the sample application +
-(14) index.html : Sample application frontend UI
+(2) app.py : Main process of flask application. Implement features with various REST APIs +
+(3) deserialize : Folder where the source code for deserialize is stored +
+(4) get_aws_storage.py : Logic to obtain inference results and images from Amazon S3 +
+(5) get_azure_storage.py : Logic to obtain inference results and images from Azure Blob Storage +
+(6) get_console_storage.py :Logic to obtain inference results and images from "**Console**" +
+(7) get_local_storage.py : Logic to fetch inference results and images from Local Storage +
+(8) get_client.py : Generates a client of "**Console Access Library**" +
+Logic to fetch the information to connect to the Azure Blob Storage +
+Specify the path of Local Storage. +
+(9) get_deserialize_data.py : Source code to deserialize the inference result +
+(10) get_storage_data.py : Determines the Storage to use and invokes the logic of the appropriate Storage +
+(11) util.py : Logic that can be used universally in multiple files +
+(12) Home.module.css : Front end style sheet of the sample application +
+(13) reset.css : Front end style sheet of the sample application +
+(14) label.json : Displays label of the inference results +
+(15) sample.js : JavaScript logic that runs in the front-end UI of the sample application +
+(16) index.html : Front-end UI of the sample application
 
 === Source code commentary
 
 The following figure provides an overview of the sample application:
 
-image::diagram_python.png[alt="Overview of the sample application", width="400", align="center"]
+image::images/diagram_python.png[alt="Overview of the sample application", width="400", align="center"]
 
 The sample application consists of the Flask framework.
 
-Call the "**Cloud SDK**" from the sample application to control the edge AI device through the "**Console**". + 
-The data obtained by the edge AI device is saved either in the "**Console**", "Azure Blob Storage" or "Local Storage". + 
-The sample application uses "**Cloud SDK**" and fetches the data from either the "**Console**" or "Azure Blob Storage" or "Local Storage".
+
+Call the "**Cloud SDK**" from the sample application to control the Edge Device through the "**Console**". + 
+The data obtained by the Edge Device is saved either in the "**Console**", "Azure Blob Storage" or "Amazon S3" or "Local Storage". + 
+The sample application uses "**Cloud SDK**" and fetches the data from either the "**Console**" or "Azure Blob Storage" or "Amazon S3" or "Local Storage".
 
 === Package (framework) on which the sample application depends
 
@@ -192,13 +224,14 @@ The sample application uses "**Cloud SDK**" and fetches the data from either the
 * https://google.github.io/flatbuffers/[FlatBuffers]
 * https://pypi.org/project/pytz/[pytz]
 * https://pypi.org/project/azure-storage-blob/[azure-storage-blob]
+* https://aws.amazon.com/sdk-for-python/[boto3]
 
 [#_Execute_sampleapp]
 == How to run the sample application
 Use the connection information prepared in the <<#_precondition,"Prerequisite">>
 
 === 1.Prepare to run the sample application
-. In Codepaces or in an environment where the repository is cloned, create [console_access_settings.yaml] under [src/common] and set the connection destination information.
+. In Codespaces or in an environment where the repository is cloned, create [console_access_settings.yaml] under [src/common] and set the connection destination information.
 
 - When "**Console Developer Edition**" is used
 +
@@ -221,8 +254,9 @@ console_access_settings:
 * Specify the Client ID of the registered application in the `**client_id**`. +
 +
 
-IMPORTANT: For details on how to obtain the Client ID and Secret, please refer "Issue the Client Secret for SDK" in the https://developer.aitrios.sony-semicon.com/en/documents/portal-user-manual["**Portal User Manual**"]. + 
-For details on how to obtain the Console endpoint and the Portal authentication endpoint, please refer to link:++https://developer.aitrios.sony-semicon.com/en/file/download/rest-api-authentication++[this document]. + 
+
+IMPORTANT: For details on how to obtain the Client ID and Secret, please refer "Issue the Client Secret for SDK" in the https://developer.aitrios.sony-semicon.com/en/edge-ai-sensing/documents/portal-user-manual/["**Portal User Manual**"]. + 
+For details on how to obtain the Console endpoint and the Portal authentication endpoint, please refer to link:++https://developer.aitrios.sony-semicon.com/en/file/download/edge-ai-sensing-portal-console-end-point-info/++["**Portal and Console endpoint information**"]. + 
 This is the information to access the "**Console**". + 
 Do not disclose it to the public or share it with others and handle it with caution.
 +
@@ -257,8 +291,8 @@ Do not disclose it to the public or share it with others, handle it with care. +
 +
 NOTE: When executing the sample application in a Proxy environment, set the environment variable `**https_proxy**`.
 
-. In Codepaces or in an environment where the repository is cloned, create [azure_access_settings.yaml] under [src/common] and set the connection destination information. +
-This setting is set when the destination to obtain the inference results is "Azure Blob Storage". 
+. In Codespaces or in an environment where the repository is cloned, create [azure_access_settings.yaml] under [src/common] and set the connection destination information. +
+This setting is set when the destination to obtain the inference results is Azure Blob Storage. 
 
 +
 |===
@@ -272,15 +306,39 @@ azure_access_settings:
 ----
 |===
 
-* Specify the Connection information of "Azure Blob Storage" in `**connection_string**`.  +
-* Specify the Container name of "Azure Blob Storage" in `**container_name**`.
+* Specify the Connection information of Azure Blob Storage in `**connection_string**`.  +
+* Specify the Container name of Azure Blob Storage in `**container_name**`.
 +
 
-IMPORTANT: This is the information to access the "Azure Blob Storage". +
-Do not disclose it to the public or share it with others and handle it
-with caution. +
+IMPORTANT: These are the access information to Azure Blob Storage. +
+Do not disclose it to the public or share it with others and handle it with caution. +
 
-. In Codepaces or in an environment where the repository is cloned, set the connection destination information in [get_client.py] under [src/common].
+.	Create [aws_access_settings.yaml] under [src/common]  in the environment where the repository is cloned or in Codespaces and set the connection destination information.
+
++
+|===
+|src/common/aws_access_settings.yaml
+a|
+[source,Yaml]
+----
+aws_access_settings:
+  bucket_name: "Bucket name"
+  access_key_id: "Access key ID"
+  secret_access_key: "Secret access key"
+  region: "Region"
+----
+|===
++
+* Set `**bucket_name**` to the Amazon S3 bucket name.
+* In `**access_key_id**`, specify the access key ID of Amazon S3. 
+* Specify the Amazon S3 secret access key in `**secret_access_key**`.
+* In `**region**`, specify the Amazon S3 region.
++
+
+IMPORTANT:  These are the access information to Amazon S3. +
+ Do not disclose it to the public or share it with others and handle it with caution. +
+
+. In Codespaces or in an environment where the repository is cloned, set the connection destination information in [get_client.py] under [src/common].
 +
 |===
 |src/common/get_client.py
@@ -290,6 +348,7 @@ a|
 class Service(Enum):
     Console = auto()
     Azure = auto()
+    AWS = auto()
     Local = auto()
 
 
@@ -299,46 +358,46 @@ LOCAL_ROOT = ""
 |===
 +
 * Set the destination to obtain the inference result in `**CONNECTION_DESTINATION**`. The default value is the `**Service.Console**` setting. +
-* Specify the path for "Local Storage" `**LOCAL_ROOT**`. +
+* Specify the path for Local Storage `**LOCAL_ROOT**`. +
 This setting is used when `**Service.Local**` is specified in `**CONNECTION_DESTINATION**`. +
 
 NOTE: When using Dev Container environment, create a folder in the folder where Local Storage is git cloned and set `**LOCAL_ROOT**` to `**workspace/{ folder that is created within a git cloned folder}**`.
 
-image::prepare_python.png[alt="Prepare to run the sample application", width="700", align="center"]
+image::images/prepare_python.png[alt="Prepare to run the sample application", width="700", align="center"]
 
 === 2.Launch the sample application
-Install the package and launch the sample application from either the terminal in the environment where the repository is cloned or from Codepaces.
+Install the package and launch the sample application from either the terminal in the environment where the repository is cloned or from Codespaces.
 
 ....
 $ pip install .
 $ python src/app.py
 ....
 
-image::launch_app_python.png[alt="Launch the sample application", width="700", align="center"]
+image::images/launch_app_python.png[alt="Launch the sample application", width="700", align="center"]
 
 === 3.Start inference
 Access the sample application from the browser and perform various operations.
 
-. Open http://localhost:3000 (port forwarded URL in the case of Codepaces).
+. Open http://localhost:3000 (port forwarded URL in the case of Codespaces).
 . Select a Device ID from the list of [**DeviceID**]
-. Click the [**START**] to start inference for the edge AI device
+. Click the [**START**] to start inference for the Edge Device
 
-image::start_inference_python.png[alt="Start inference", width="700", align="center"]
+image::images/start_inference_python.png[alt="Start inference", width="700", align="center"]
 
 === 4.Review inference results and images
 While inference is starting, the "**Image/Inference**" area displays an image and inference results.
 
-image::running_python.png[alt="Review inference results and images", width="700", align="center"]
+image::images/running_python.png[alt="Review inference results and images", width="700", align="center"]
 
 
 === 5.Stop inference
-Click the [**STOP**] in the sample application to stop inference for the edge AI device.
+Click the [**STOP**] in the sample application to stop inference for the Edge Device.
 
-image::stop_inference_python.png[alt="Stop inference", width="700", align="center"]
+image::images/stop_inference_python.png[alt="Stop inference", width="700", align="center"]
 
 == Implementation description for each use case
 
-=== 1.Get information about edge AI devices enrolled in the "**Console**"
+=== 1.Get information about Edge Devices enrolled in the "**Console**"
 
 To use the "**Console**", generate a Client for the "**Cloud SDK**". + 
 Use the functions provided by the "**Console**" from the generated Client.
@@ -375,7 +434,7 @@ In the preceding source code, generate the client for the "**Cloud SDK**". +
 Specify the connection information to the `**Config**` and generate the `**config_obj**`. + 
 Specify the `**config_obj**` to the `**Client**` and generate the `**client_obj**`.
 
-* Get device information
+* Get Edge Device information
 +
 [source, Python]
 ----
@@ -384,9 +443,9 @@ def get_devices():
   client_obj.device_management.get_devices()
 ----
 Call the `**get_console_client**` to generate the `**client_obj**` as preceding. + 
-Get device information using the `**get_devices**` provided by the `**device_management**` of the `**client_obj**`.
+Get Edge Device information using the `**get_devices**` provided by the `**device_management**` of the `**client_obj**`.
 
-* Get device parameters
+* Get Edge Device parameters
 +
 [source, Python]
 ----
@@ -395,10 +454,10 @@ def get_command_parameter_file():
   return client_obj.device_management.get_command_parameter_file()
 ----
 Call the `**get_console_client**` to generate the `**client_obj**` as preceding. + 
-Get device parameters using the `**get_command_parameter_file**` provided by the `**device_management**` of the `**client_obj**`.
+Get Edge Device parameters using the `**get_command_parameter_file**` provided by the `**device_management**` of the `**client_obj**`.
 
 
-=== 2.Instruct the edge AI devices to start inference
+=== 2.Instruct the Edge Devices to start inference
 
 
 * Start inference
@@ -499,8 +558,8 @@ deserialize_data = get_deserialize_data.get_deserialize_data(latest_inference_da
 The preceding source code converts the inference results gotten from the "**Console**" into a format that can be referenced. + 
 See the https://github.com/SonySemiconductorSolutions/aitrios-sdk-deserialization-sample["Cloud SDK Deserialize Sample"] for details of this conversion process.
 
-=== 4.Obtain the inference results and images of "Azure Blob Storage"
-In order to obtain the inference results and images from "Azure Blob Storage", use get_azure_storage.py available in the hooks directory.
+=== 4.Obtain the inference results and images of Azure Blob Storage
+In order to obtain the inference results and images from Azure Blob Storage, use get_azure_storage.py available in the hooks directory.
 
 * Obtain the image list
 +
@@ -644,8 +703,152 @@ Obtain the inference result data using `**get_blob_client**` and `**download_blo
 `**end_inference_time**` is a time stamp that indicates the search end position. +
 `**number_of_inference_result**` is the number of inference results to be obtained. + 
 
-=== 5.Obtains the inference results and images of "Local Storage"
-In order to obtain the inference results and images from "Local Storage", use get_local_storage.py available in the hooks directory.
+=== 5.Obtains the inference results and images of Amazon S3
+get_aws_storage.py available under the storage directory is used to obtain the inference results and images from Amazon S3.
+
+
+* Obtain the image list
++
+[source,Python]
+----
+def get_image_from_aws(retry_count, device_id, sub_directory, order_by="ASC", skip=0, number_of_images=50):
+    """Get the image from AWS
+    Args:
+        retry_count (int): Number of retries on failure
+        device_id (str): Device id
+        sub_directory (str): image file uploaded directory
+        order_by (str): Sort order by date and time the image was created. DESC, ASC
+        skip (int): Number of images to skip fetching
+        number_of_images (int): Number of images acquired
+    Returns:
+        total_image_count (int): get images number
+        images :[{
+            contents (str): base64 encode image data
+            name (str): image file name
+        }]
+    """
+    image_response = {
+        "total_image_count": 0,
+        "images": []
+    }
+    access_info = get_client.get_aws_access_settings()
+    access_key_id = access_info["access_key_id"]
+    secret_access_key = access_info["secret_access_key"]
+    region = access_info["region"]
+
+    s3_client = _get_s3_client(access_key_id, secret_access_key, region)
+
+    bucket_name = access_info["bucket_name"]
+    prefix = f"{device_id}/image/{sub_directory}/"
+
+    image_name_list = _get_key_list_from_aws(s3_client, bucket_name, prefix)
+    if order_by == "DESC":
+        image_name_list.sort(reverse=True)
+
+    images = []
+
+    for i in range(skip, skip + number_of_images):
+        if i >= len(image_name_list):
+            break
+        image_name = image_name_list[i].split("/")[3]
+
+        response = s3_client.get_object(Bucket=bucket_name, Key=image_name_list[i])
+        contents = response["Body"].read()
+        b64encoded = base64.b64encode(contents)
+
+        images.append({
+            "name": image_name,
+            "contents": b64encoded.decode()
+        })
+
+    if len(image_name_list) != 0:
+        image_response["total_image_count"] = len(image_name_list)
+        image_response["images"] = images
+        return image_response
+
+    if retry_count > 0:
+        time.sleep(1)
+        return get_image_from_aws(retry_count - 1,
+                                  device_id,
+                                  sub_directory,
+                                  order_by,
+                                  skip,
+                                  number_of_images)
+
+    return image_response
+----
+Obtains the list of image file names using list_objects_v2 provided by boto3. +
+Obtains the image data using get_object provided by boto3. +
+Creates an image file name, base64 and returns it together with `**total_image_count**`.
+
+* Obtain the inference result associated with the latest image
+
+[source,Python]
+----
+def get_inference_from_aws(retry_count,
+                           device_id,
+                           sub_directory,
+                           start_inference_time=None,
+                           end_inference_time=None,
+                           number_of_inference_result=None):
+    """Get inference_data from AWS
+    Args:
+        retry_count (int): Number of retries on failure
+        device_id (str): Device id
+        sub_directory (str): image file uploaded directory
+        start_inference_time (str): start range.
+        end_inference_time (str): end range.
+        number_of_inference_result (int): Number of cases to get.
+    Returns:
+        inferences (arr): inference results
+    """
+    inferences = []
+    access_info = get_client.get_aws_access_settings()
+    access_key_id = access_info["access_key_id"]
+    secret_access_key = access_info["secret_access_key"]
+    region = access_info["region"]
+
+    s3_client = _get_s3_client(access_key_id, secret_access_key, region)
+
+    bucket_name = access_info["bucket_name"]
+    prefix = f"{device_id}/metadata/{sub_directory}/"
+
+    inference_name_list = _get_key_list_from_aws(s3_client, bucket_name, prefix)
+
+    for file_path in inference_name_list:
+        timestamp = file_path.split("/")[3].replace(".txt", "")
+        if (start_inference_time is None or timestamp >= start_inference_time) and\
+                (end_inference_time is None or timestamp < end_inference_time):
+            response = s3_client.get_object(Bucket=bucket_name, Key=file_path)
+
+            contents = json.loads(response["Body"].read())
+            inferences.append(contents["Inferences"][0]["O"])
+
+        if end_inference_time is not None and timestamp > end_inference_time:
+            break
+
+        if len(inference_name_list) == number_of_inference_result:
+            break
+
+    if retry_count > 0:
+        time.sleep(1)
+        return get_inference_from_aws(retry_count - 1,
+                                      device_id,
+                                      sub_directory,
+                                      start_inference_time,
+                                      end_inference_time,
+                                      number_of_inference_result)
+    return inferences
+----
+Obtains the list of inference result file names using list_objects_v2 provided by boto3. +
+Obtains the inference result data using get_object provided by boto3. +
+`**start_inference_time**` is a time stamp that indicates the search start position. +
+`**end_inference_time**` is a timestamp that indicates the end position of the search. +
+`**number_of_inference_result**` is the number of inference results to obtain.
+
+
+=== 6.Obtains the inference results and images of Local Storage
+In order to obtain the inference results and images from Local Storage, use get_local_storage.py available in the hooks directory.
 
 
 * Obtain the image list
@@ -757,7 +960,7 @@ Obtains the inference result data using `**open**`. +
 `**end_inference_time**` is a time stamp that indicates the search end position. +
 `**number_of_inference_result**` is the number of inference results to be obtained. + 
 
-=== 6.Instruct the edge AI devices to stop inference
+=== 6.Instruct the Edge Devices to stop inference
 
 * Stop inference
 +
@@ -767,7 +970,7 @@ def stop_upload_inference_result():
   client_obj = get_console_client()
   return client_obj.device_management.stop_upload_inference_result(device_id="device_id")
 ----
-To stop inference of the edge AI device, run the `**stop_upload_inference_result**` provided by the `**device_management**` of the `**client_obj**` as preceding. + 
+To stop inference of the Edge Device, run the `**stop_upload_inference_result**` provided by the `**device_management**` of the `**client_obj**` as preceding. + 
 Specify the Device ID to stop by the `**device_id**`.
 
 == Reference materials

@@ -22,8 +22,23 @@ RUN apt-get update && apt-get install -y \
     mariadb-common \
     openssh-client \
     openssl \
+    bsdextrautils \
+    bsdutils \
+    libblkid-dev \
+    libmount-dev \
+    libsmartcols1 \
+    uuid-dev \
+    util-linux \
+    mount \
+    libc-bin \
+    libc-dev-bin \
+    libc-l10n \
+    locales \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
+
+# Upgrading black
+RUN pipx upgrade black
 
 # [Choice] Node.js version: none, lts/*, 18, 16, 14, 12, 10
 ARG NODE_VERSION="18"
@@ -40,3 +55,5 @@ COPY .devcontainer/Dependencies/cal ${CONSOLE_LIB_DIR}
 RUN pip install ${CONSOLE_LIB_DIR}/lib/python-client
 RUN pip install ${CONSOLE_LIB_DIR}/src
 
+# Delete cache of pip
+RUN rm -r /root/.cache/pip

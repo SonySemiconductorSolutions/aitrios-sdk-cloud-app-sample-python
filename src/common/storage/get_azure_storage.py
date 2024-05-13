@@ -16,30 +16,10 @@ limitations under the License.
 
 import base64
 import time
-import os
 from azure.storage.blob import BlobServiceClient
 from src.common import get_client
-from src.third_party.ocsp_checker import ocspchecker
+from src.common.util import get_ocsp_status
 import json
-
-
-def get_https_proxy():
-    """
-    Get proxy setting from environment variable
-
-    Returns:
-        - "__proxy_str__" - Proxy string
-    """
-
-    proxy_env_var = "https_proxy"
-    return os.environ.get(proxy_env_var) or os.environ.get(proxy_env_var.upper())
-
-
-def get_ocsp_status(host_url):
-    """Get OCSP status for the host_url"""
-    result = ocspchecker.get_ocsp_status(host=host_url, proxy=get_https_proxy())
-    if result[2] != "OCSP Status: GOOD":
-        raise Exception("OCSP status not good.")
 
 
 def get_image_from_azure(retry_count, device_id, sub_directory, order_by="ASC", skip=0, number_of_images=50):

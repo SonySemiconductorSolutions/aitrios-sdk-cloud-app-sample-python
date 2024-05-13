@@ -17,7 +17,6 @@ limitations under the License.
 import os
 import sys
 import warnings
-from pathlib import Path
 from enum import Enum, auto
 import yaml
 
@@ -25,6 +24,7 @@ from console_access_library.client import Client
 from console_access_library.common.config import Config
 from console_access_library.common.read_console_access_settings import \
     ReadConsoleAccessSettings
+from src.common.util import file_symbolic_check
 
 warnings.filterwarnings("ignore")
 sys.path.append(".")
@@ -34,6 +34,7 @@ class Service(Enum):
     Console = auto()
     Azure = auto()
     Local = auto()
+    AWS = auto()
 
 
 CONNECTION_DESTINATION = Service.Console
@@ -70,9 +71,7 @@ def get_azure_access_settings():
 
     setting_file_path = os.path.join(
         os.getcwd(), "src", "common", "azure_access_settings.yaml")
-    symbolic_link = Path(setting_file_path).is_symlink()
-    if symbolic_link is True:
-        raise IsADirectoryError("Can't open symbolic link file.")
+    file_symbolic_check(setting_file_path)
     with open(setting_file_path, "r") as yaml_file:
         access_info = yaml.safe_load(yaml_file)
         config_obj = {}
@@ -82,5 +81,31 @@ def get_azure_access_settings():
             config_obj["connection_string"] = access_info["azure_access_settings"]["connection_string"]
         if access_info["azure_access_settings"].get("container_name") is not None:
             config_obj["container_name"] = access_info["azure_access_settings"]["container_name"]
+
+    return config_obj
+
+
+def get_aws_access_settings():
+    """Get access information from yaml
+    Returns:
+        config_obj: aws settings
+    """
+
+    setting_file_path = os.path.join(
+        os.getcwd(), "src", "common", "aws_access_settings.yaml")
+    file_symbolic_check(setting_file_path)
+    with open(setting_file_path, "r") as yaml_file:
+        access_info = yaml.safe_load(yaml_file)
+        config_obj = {}
+        if access_info["aws_access_settings"] is None:
+            raise ValueError("Wrong setting. Check the settings.")
+        if access_info["aws_access_settings"].get("access_key_id") is not None:
+            config_obj["access_key_id"] = access_info["aws_access_settings"]["access_key_id"]
+        if access_info["aws_access_settings"].get("secret_access_key") is not None:
+            config_obj["secret_access_key"] = access_info["aws_access_settings"]["secret_access_key"]
+        if access_info["aws_access_settings"].get("region") is not None:
+            config_obj["region"] = access_info["aws_access_settings"]["region"]
+        if access_info["aws_access_settings"].get("bucket_name") is not None:
+            config_obj["bucket_name"] = access_info["aws_access_settings"]["bucket_name"]
 
     return config_obj

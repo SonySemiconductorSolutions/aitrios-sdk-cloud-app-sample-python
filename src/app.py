@@ -36,7 +36,7 @@ def root():
 def get_device_data():
     """Connect to Console and get DeviceData
     Returns:
-        Response: List of available devices.
+        Response: List of available Edge Devices.
         If get_devices_data is an error create and return an error response
     """
     try:
@@ -73,7 +73,7 @@ def get_device_data():
 
 @app.route("/getCommandParameterFile", methods=["GET"])
 def get_command_parameter_file():
-    """Get the command_parameter_data in device from Console
+    """Get the command_parameter_data in Edge Device from Console
     Args:
         device_id (str): Device id
      Returns:
@@ -100,6 +100,7 @@ def get_command_parameter_file():
 
         mode = 0
         upload_method_IR = "MQTT"
+        file_format = "JPG"
         match_data = [
             parameter for parameter in response["parameter_list"]
             if "device_ids" in parameter
@@ -114,13 +115,25 @@ def get_command_parameter_file():
                 match_data[0]["parameter"]["commands"][0]["parameters"]["UploadMethodIR"] \
                 if "UploadMethodIR" in match_data[0]["parameter"]["commands"][0]["parameters"] \
                 else "MQTT"
+            file_format = \
+                match_data[0]["parameter"]["commands"][0]["parameters"]["FileFormat"] \
+                if "FileFormat" in match_data[0]["parameter"]["commands"][0]["parameters"] \
+                else "JPG"
 
         if not ((upload_method_IR == "MQTT" and CONNECTION_DESTINATION == Service.Console) or
                 (upload_method_IR == "BlobStorage" and CONNECTION_DESTINATION == Service.Azure) or
+                (upload_method_IR == "BlobStorage" and CONNECTION_DESTINATION == Service.AWS) or
                 (upload_method_IR == "HTTPStorage" and CONNECTION_DESTINATION == Service.Local)):
             error_response = {
                 "result": "ERROR",
                 "message": "Command parameters and CONNECTION_DESTINATION do not match."
+            }
+            return jsonify(error_response), 500
+
+        if not (file_format == "JPG"):
+            error_response = {
+                "result": "ERROR",
+                "message": "Command Parameter FileFormat supports only JPG."
             }
             return jsonify(error_response), 500
 
@@ -162,7 +175,7 @@ def get_image_and_inference():
         if image_data is None or len(image_data.get('images')) == 0:
             error_response = {
                 "result": "ERROR",
-                "message": "Cannot get images."
+                "message": "Cannot get JPG image."
             }
             return jsonify(error_response)
 
