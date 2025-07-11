@@ -17,7 +17,7 @@ limitations under the License.
 from src.common import get_client
 
 
-def get_image_from_console(device_id, sub_directory, order_by=None, skip=None, number_of_images=None):
+def get_image_from_console(device_id, sub_directory, order_by=None, skip=None, number_of_images=None, from_datetime=None, to_datetime=None):
     """Get the image from Console
     Args:
         device_id (str): Device id
@@ -25,6 +25,8 @@ def get_image_from_console(device_id, sub_directory, order_by=None, skip=None, n
         order_by (str): Sort order by date and time the image was created. DESC, ASC
         skip (int): Number of images to skip fetching
         number_of_images (int): Number of images acquired
+        from_datetime (str): Date/Time (To). Format: yyyyMMddHHmm
+        to_datetime (str): Date/Time (To). Format: yyyyMMddHHmm
     Returns:
      total_image_count (int): get images number
         images :[{
@@ -33,8 +35,7 @@ def get_image_from_console(device_id, sub_directory, order_by=None, skip=None, n
         }]
     """
     client_obj = get_client.get_console_client()
-
-    image_response = client_obj.insight.get_image_data(device_id=device_id, sub_directory_name=sub_directory, number_of_images=number_of_images, skip=skip, order_by=order_by)
+    image_response = client_obj.insight.get_image_data(device_id=device_id, sub_directory_name=sub_directory, number_of_images=number_of_images, skip=skip, order_by=order_by, from_datetime=from_datetime, to_datetime=to_datetime)
 
     return image_response
 

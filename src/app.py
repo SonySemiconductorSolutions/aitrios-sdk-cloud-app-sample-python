@@ -166,12 +166,15 @@ def get_image_and_inference():
         order_by = "DESC"
         number_of_images = 1
         skip = 0
-
+        from_datetime = None
         if CONNECTION_DESTINATION == Service.Local:
             device_id = ""
             sub_dir = ""
 
-        image_data = get_storage_data.get_image(device_id, sub_dir, order_by, skip, number_of_images)
+        if CONNECTION_DESTINATION == Service.Console:
+            from_datetime = datetime.now().strftime("%Y%m%d%H%M")
+
+        image_data = get_storage_data.get_image(device_id, sub_dir, order_by, skip, number_of_images, from_datetime)
         if image_data is None or len(image_data.get('images')) == 0:
             error_response = {
                 "result": "ERROR",

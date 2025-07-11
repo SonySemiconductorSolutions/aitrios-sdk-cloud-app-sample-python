@@ -1,0 +1,4 @@
+
+[submodule ".devcontainer/Dependencies/cal"]
+	path = .devcontainer/Dependencies/cal
+	url = https://github.com/SonySemiconductorSolutions/aitrios-sdk-console-access-lib-python.git

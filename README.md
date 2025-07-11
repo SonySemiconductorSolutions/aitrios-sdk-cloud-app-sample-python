@@ -33,7 +33,7 @@ See the ["**Cloud SDK Sample Application Python Tutorial**"](./docs/development-
 - ["**Cloud SDK Sample Application Python Functional Specifications**"](./docs/development-docs/CloudSDK_FuncSpec_SampleApp_Python.adoc)
 
 ## Get support
-- [Contact us](https://developer.aitrios.sony-semicon.com/en/edge-ai-sensing/contact-us/)
+- [Contact us](https://support.aitrios.sony-semicon.com/hc/en-us/requests/new)
 
 ## See also
 - [aitrios-sdk-console-access-lib-python](https://github.com/SonySemiconductorSolutions/aitrios-sdk-console-access-lib-python)
