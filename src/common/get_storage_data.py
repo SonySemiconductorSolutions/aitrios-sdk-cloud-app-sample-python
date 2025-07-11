@@ -24,7 +24,7 @@ from src.common.util import file_existence_check
 RETRY_COUNT = 5
 
 
-def get_image(device_id, sub_directory, order_by=None, skip=None, number_of_images=None):
+def get_image(device_id, sub_directory, order_by=None, skip=None, number_of_images=None, from_datetime=None, to_datetime=None):
     """Get the image from Azure or Console
     Args:
         device_id (str): Device id
@@ -32,6 +32,8 @@ def get_image(device_id, sub_directory, order_by=None, skip=None, number_of_imag
         order_by (str): Sort order by date and time the image was created. DESC, ASC
         skip (int): Number of images to skip fetching
         number_of_images (int): Number of images acquired
+        from_datetime (str): Date/Time (To). Format: yyyyMMddHHmm
+        to_datetime (str): Date/Time (To). Format: yyyyMMddHHmm
     Returns:
         result (obj): images data and images file name
     """
@@ -46,7 +48,7 @@ def get_image(device_id, sub_directory, order_by=None, skip=None, number_of_imag
             result = get_local_storage.get_image_from_local(RETRY_COUNT, device_id, sub_directory, order_by, skip, number_of_images)
     elif CONNECTION_DESTINATION == Service.Console:
         if check_console_settings("console_access_settings.yaml"):
-            result = get_console_storage.get_image_from_console(device_id, sub_directory, order_by, skip, number_of_images)
+            result = get_console_storage.get_image_from_console(device_id, sub_directory, order_by, skip, number_of_images, from_datetime, to_datetime)
     return result
 
 

@@ -21,19 +21,19 @@
 |2022/12/12
 |Initial draft
 
-|2023/1/30
+|2023/01/30
 |Unified the swinging of expressions + 
 Fixed the notation + 
 Updated the PDF build environment
 
-|2023/5/26
+|2023/05/26
 |Fixed parenthesis notation for tool names + 
 Added alternate text to images
 
 |2023/12/22
 |Console Developer Edition support
 
-|2024/3/25
+|2024/03/25
 |AWS support
 
 |===

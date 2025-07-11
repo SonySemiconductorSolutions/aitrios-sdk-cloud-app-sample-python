@@ -39,12 +39,10 @@ Fixed parenthesis notation for tool names +
 Added alternate text to images
 
 |2023/09/26
-|Console Developer Edition and Console
-Enterprise Edition support
+|Console Developer Edition and Console Enterprise Edition support
 
 |2023/12/05
 |AWS support
-
 |===
 
 == Introduction

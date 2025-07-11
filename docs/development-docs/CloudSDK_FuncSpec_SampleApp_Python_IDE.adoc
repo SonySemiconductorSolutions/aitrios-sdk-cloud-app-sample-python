@@ -21,11 +21,11 @@
 |2022/11/16
 |Initial draft
 
-|2023/1/30
+|2023/01/30
 |Unified the swinging of expressions + 
 Updated the PDF build environment
 
-|2023/5/26
+|2023/05/26
 |Fixed parenthesis notation for tool names
 
 |===
